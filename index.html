@@ -1,0 +1,3255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>문라이트 머천트: 주야간 듀얼 루프 RPG (Moonlight Merchant)</title>
+  <style>
+    :root {
+      --bg-dark: #0f111a;
+      --bg-card: #1a1d2e;
+      --bg-panel: #23273e;
+      --bg-accent: #2e3452;
+      --gold-primary: #f6c85f;
+      --gold-dark: #c69426;
+      --gold-light: #ffea9f;
+      --ruby: #e74c3c;
+      --emerald: #2ecc71;
+      --cyan: #00d2d3;
+      --purple: #9b59b6;
+      --text-main: #e6e8f0;
+      --text-muted: #959cb6;
+      --border-color: #3b4266;
+      --border-glow: rgba(246, 200, 95, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* 상단 통합 헤더 */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      padding: 12px 20px;
+      background: linear-gradient(180deg, #181c2c 0%, #111422 100%);
+      border-bottom: 2px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 26px;
+      background: #252a42;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--gold-dark);
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--gold-light);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+      letter-spacing: -0.5px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .top-stats {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .stat-badge {
+      background: var(--bg-panel);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .stat-badge.gold {
+      color: var(--gold-primary);
+      border-color: var(--gold-dark);
+      background: rgba(246, 200, 95, 0.1);
+    }
+
+    .stat-badge.day {
+      color: var(--cyan);
+      border-color: #0984e3;
+    }
+
+    .stat-badge.debt {
+      color: #ff7675;
+      border-color: #d63031;
+    }
+
+    .top-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-accent);
+      border-color: var(--gold-primary);
+      transform: translateY(-1px);
+    }
+
+    /* 탭 네비게이션 */
+    nav.tab-nav {
+      display: flex;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 10px;
+      padding: 0 10px;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      background: var(--bg-panel);
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-panel);
+      color: var(--gold-light);
+      border-color: var(--gold-dark);
+      border-top: 3px solid var(--gold-primary);
+    }
+
+    /* 메인 컨테이너 */
+    main.content-area {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 12px 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      min-height: 640px;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .view-panel {
+      display: none;
+    }
+
+    .view-panel.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 1. 상점 뷰 (Shop View) */
+    .shop-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+
+    .canvas-container {
+      position: relative;
+      background: #090a10;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+    }
+
+    canvas#shopCanvas, canvas#dungeonCanvas {
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    .shop-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .panel-box-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 쇼케이스 그리드 */
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .showcase-slot {
+      background: rgba(15, 17, 26, 0.7);
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      height: 95px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .showcase-slot:hover {
+      border-color: var(--gold-primary);
+      background: rgba(35, 39, 62, 0.7);
+    }
+
+    .showcase-slot.locked {
+      background: #141724;
+      border-style: solid;
+      border-color: #2b3046;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .showcase-slot.has-item {
+      border: 2px solid var(--gold-dark);
+      background: rgba(37, 42, 66, 0.8);
+    }
+
+    .slot-item-icon {
+      font-size: 26px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+    .slot-item-name {
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 90%;
+    }
+
+    .slot-item-price {
+      font-size: 11px;
+      color: var(--gold-light);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* 상점 하단 컨트롤 */
+    .shop-action-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-main {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(180deg, #f6c85f 0%, #d49f2b 100%);
+      color: #1a1600;
+      border: none;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(246, 200, 95, 0.3);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-main:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-main:active {
+      transform: translateY(1px);
+    }
+
+    .btn-main.stop-shop {
+      background: linear-gradient(180deg, #ff7675 0%, #d63031 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+    }
+
+    /* 인벤토리 뷰 */
+    .inventory-section {
+      margin-top: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .inv-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .inv-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 8px;
+    }
+
+    .inv-slot {
+      aspect-ratio: 1;
+      background: rgba(15, 17, 26, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .inv-slot:hover {
+      border-color: var(--cyan);
+      background: rgba(0, 210, 211, 0.1);
+      transform: scale(1.04);
+    }
+
+    .inv-slot.selected {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 10px var(--border-glow);
+    }
+
+    .inv-slot .qty-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 1px 2px #000;
+    }
+
+    /* 2. 던전 뷰 (Dungeon View) */
+    .dungeon-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dungeon-hud {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .hud-bars {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .bar-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .progress-bar {
+      width: 160px;
+      height: 16px;
+      background: #111422;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      transition: width 0.15s linear;
+    }
+
+    .hp-fill { background: linear-gradient(90deg, #e74c3c, #ff7675); }
+    .dash-fill { background: linear-gradient(90deg, #0984e3, #00d2d3); }
+
+    .dungeon-select-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .dungeon-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dungeon-card:hover:not(.locked) {
+      border-color: var(--gold-primary);
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    }
+
+    .dungeon-card.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(0.8);
+    }
+
+    .dungeon-card .theme-icon {
+      font-size: 36px;
+    }
+
+    .dungeon-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    .dungeon-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .dungeon-boss-badge {
+      font-size: 11px;
+      color: #ff7675;
+      background: rgba(214, 48, 49, 0.2);
+      padding: 3px 6px;
+      border-radius: 4px;
+      align-self: flex-start;
+      border: 1px solid #d63031;
+    }
+
+    /* 3. 마을 및 대장간 (Town & Crafting) */
+    .town-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .upgrade-list, .recipe-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .upgrade-item, .recipe-item {
+      background: rgba(15, 17, 26, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .upgrade-item:hover, .recipe-item:hover {
+      border-color: var(--cyan);
+      background: rgba(35, 39, 62, 0.8);
+    }
+
+    .item-meta-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .item-meta-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn-upgrade {
+      background: linear-gradient(180deg, #0984e3 0%, #00cec9 100%);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-upgrade:disabled {
+      background: #2b3046;
+      color: #636e72;
+      cursor: not-allowed;
+    }
+
+    /* 4. 빚 관리 탭 (Debt Tab) */
+    .debt-card {
+      background: linear-gradient(135deg, #1e2438 0%, #151928 100%);
+      border: 2px solid var(--gold-dark);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 600px;
+      margin: 20px auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .debt-schedule {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .schedule-step {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--bg-dark);
+      border-radius: 6px;
+      border-left: 4px solid var(--border-color);
+      font-size: 13px;
+    }
+
+    .schedule-step.completed {
+      border-left-color: var(--emerald);
+      color: var(--emerald);
+    }
+
+    .schedule-step.current {
+      border-left-color: var(--gold-primary);
+      background: rgba(246, 200, 95, 0.1);
+      font-weight: 700;
+    }
+
+    /* 모달 공통 */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+      animation: fadeIn 0.15s ease-out;
+    }
+
+    .modal-box {
+      background: var(--bg-panel);
+      border: 2px solid var(--gold-dark);
+      border-radius: 14px;
+      padding: 24px;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--gold-light);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 토스트 알림 */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border-left: 4px solid var(--gold-primary);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 6px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      font-size: 13px;
+      font-weight: 600;
+      animation: slideIn 0.3s forwards, fadeOut 0.3s 2.7s forwards;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    /* 등급별 색상 테두리/텍스트 */
+    .tier-common { color: #b2bec3; border-color: #636e72 !important; }
+    .tier-uncommon { color: #55efc4; border-color: #00b894 !important; }
+    .tier-rare { color: #74b9ff; border-color: #0984e3 !important; }
+    .tier-epic { color: #a29bfe; border-color: #6c5ce7 !important; }
+    .tier-legendary { color: #ffeaa7; border-color: #fdcb6e !important; text-shadow: 0 0 8px rgba(253, 203, 110, 0.6); }
+
+    /* 모바일/작은 화면 반응형 */
+    @media (max-width: 960px) {
+      .shop-layout, .town-grid, .dungeon-select-grid {
+        grid-template-columns: 1fr;
+      }
+      .inv-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 상태바 & 헤더 -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-icon">🌙</div>
+      <div>
+        <div class="brand-title">MOONLIGHT MERCHANT</div>
+        <div class="brand-sub">주야간 듀얼 루프 상점 경영 RPG</div>
+      </div>
+    </div>
+
+    <div class="top-stats">
+      <div class="stat-badge day" id="hudDay">📅 Day 1 (낮)</div>
+      <div class="stat-badge gold" id="hudGold">🪙 250 G</div>
+      <div class="stat-badge debt" id="hudDebt">⚠️ 빚: 1,000 G (D-7)</div>
+    </div>
+
+    <div class="top-controls">
+      <button class="btn-icon" id="btnAudioToggle" title="음향 효과 켜기/끄기">🔊 사운드</button>
+      <button class="btn-icon" id="btnSaveGame" title="실시간 데이터 저장">💾 저장</button>
+      <button class="btn-icon" id="btnHelp" title="게임 조작 및 공략">❓ 도움말</button>
+    </div>
+  </header>
+
+  <!-- 탭 메뉴 -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-target="panelShop">🏪 상점 경영 (낮)</button>
+    <button class="tab-btn" data-target="panelTown">🏛️ 마을 & 대장간</button>
+    <button class="tab-btn" data-target="panelDungeon">⚔️ 던전 탐험 (밤)</button>
+    <button class="tab-btn" data-target="panelDebt">📜 빚 상환 대출장</button>
+  </nav>
+
+  <!-- 메인 패널 컨텐츠 -->
+  <main class="content-area">
+
+    <!-- 1. 상점 경영 패널 -->
+    <div class="view-panel active" id="panelShop">
+      <div class="shop-layout">
+        <!-- 상점 캔버스 영역 -->
+        <div>
+          <div class="canvas-container">
+            <canvas id="shopCanvas" width="760" height="480"></canvas>
+          </div>
+          <div class="shop-action-bar">
+            <button class="btn-main" id="btnStartShop">🔔 가게 문 열기 (영업 개시)</button>
+            <button class="btn-main stop-shop" id="btnCloseShop" style="display: none;">🚪 영업 마감 및 정산</button>
+          </div>
+        </div>
+
+        <!-- 상점 우측 쇼케이스 및 현황 -->
+        <div class="shop-sidebar">
+          <div class="panel-box">
+            <div class="panel-box-title">
+              <span>진열대 (Showcase)</span>
+              <span id="showcaseCountText" style="font-size: 11px; color: var(--text-muted);">2 / 2 사용중</span>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+              진열대를 클릭해 배낭의 아이템을 올리고 판매 가격을 책정하세요.
+            </p>
+            <div class="showcase-grid" id="showcaseContainer">
+              <!-- JS 동적 생성 -->
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div class="panel-box-title">
+              <span>오늘의 영업 통계</span>
+              <span id="shopComboBadge" style="font-size: 12px; color: var(--gold-light); font-weight:800;">COMBO x0</span>
+            </div>
+            <div style="font-size: 12px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display:flex; justify-content:space-between;">
+                <span>방문 손님:</span>
+                <strong id="statCustomerCount">0 명</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span>판매 성공:</span>
+                <strong id="statSalesCount" style="color:var(--emerald);">0 건</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span>대만족 팁:</span>
+                <strong id="statTipsAmount" style="color:var(--gold-primary);">0 G</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border-color); padding-top:6px;">
+                <span>오늘 총 매출:</span>
+                <strong id="statTodayRevenue" style="color:var(--gold-light); font-size:14px;">0 G</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 배낭 인벤토리 16칸 -->
+      <div class="inventory-section">
+        <div class="inv-header">
+          <div style="font-size: 14px; font-weight: 700; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
+            🎒 모험가의 배낭 (<span id="invCapacityText">0 / 16</span>)
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted);">
+            아이템을 클릭하여 상세 정보 확인 또는 진열대에 등록
+          </div>
+        </div>
+        <div class="inv-grid" id="inventoryGrid">
+          <!-- JS 동적 생성 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 마을 & 대장간/공방 패널 -->
+    <div class="view-panel" id="panelTown">
+      <div class="town-grid">
+        <!-- 대장간 & 장비 업그레이드 -->
+        <div class="panel-box">
+          <div class="panel-box-title">
+            <span>🔨 마을 대장간 (Blacksmith)</span>
+            <span id="forgeLevelText" style="font-size: 12px; color: var(--cyan);">Lv.1 대장간</span>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+            대장장이에게 골드를 투자하여 전투 장비를 제련하고 기본 스펙을 강화하세요.
+          </p>
+          <div class="upgrade-list" id="blacksmithList">
+            <!-- JS 동적 생성 -->
+          </div>
+        </div>
+
+        <!-- 크래프팅 공방 -->
+        <div class="panel-box">
+          <div class="panel-box-title">
+            <span>🔮 연금술 & 장비 제작소 (Crafting)</span>
+            <span style="font-size: 11px; color: var(--text-muted);">고가 프리미엄 제작품</span>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+            던전에서 파밍한 재료를 조합하여 상점에서 큰돈을 벌 수 있는 명품을 만듭니다.
+          </p>
+          <div class="recipe-list" id="craftingList">
+            <!-- JS 동적 생성 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 상점 인테리어 시설 투자 -->
+      <div class="panel-box" style="margin-top: 16px;">
+        <div class="panel-box-title">
+          <span>🏪 상점 인테리어 & 시설 투자</span>
+          <span style="font-size: 11px; color: var(--gold-primary);">매장 경쟁력 증대</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;" id="shopUpgradeList">
+          <!-- JS 동적 생성 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 던전 탐험 패널 (밤) -->
+    <div class="view-panel" id="panelDungeon">
+      <div class="dungeon-container">
+        <!-- 던전 진행 중 HUD -->
+        <div class="dungeon-hud" id="dungeonHud" style="display: none;">
+          <div class="hud-bars">
+            <div class="bar-container">
+              <span>❤️ HP:</span>
+              <div class="progress-bar">
+                <div class="progress-fill hp-fill" id="dungeonHpFill" style="width: 100%;"></div>
+              </div>
+              <span id="dungeonHpText">100 / 100</span>
+            </div>
+
+            <div class="bar-container">
+              <span>⚡ 대시:</span>
+              <div class="progress-bar">
+                <div class="progress-fill dash-fill" id="dungeonDashFill" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap: 14px;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--gold-primary);" id="dungeonFloorText">
+              🌲 숲 미궁 - 1층
+            </div>
+            <button class="btn-icon" id="btnEscapeDungeon" style="background:#d63031; border-color:#ff7675; color:#fff;">
+              🌀 귀환 포탈 (탈출)
+            </button>
+          </div>
+        </div>
+
+        <!-- 던전 캔버스 -->
+        <div class="canvas-container" id="dungeonCanvasBox" style="display: none;">
+          <canvas id="dungeonCanvas" width="880" height="520"></canvas>
+        </div>
+
+        <!-- 던전 선택 게이트 (던전 입장 전) -->
+        <div id="dungeonSelectArea" style="width: 100%;">
+          <div style="text-align: center; margin-bottom: 16px;">
+            <h2 style="color: var(--gold-light); font-size: 20px;">고대 차원문 (Dimensional Gateways)</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              밤이 깊었습니다. 던전에 잠입하여 희귀 유물과 괴물들의 전리품을 파밍하세요!
+            </p>
+          </div>
+
+          <div class="dungeon-select-grid" id="dungeonGrid">
+            <!-- JS 동적 생성 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 빚 상환 대출장 패널 -->
+    <div class="view-panel" id="panelDebt">
+      <div class="debt-card">
+        <h3 style="color: var(--gold-light); font-size: 18px; margin-bottom: 8px;">
+          💰 루미나 신용조합 대출 상환장
+        </h3>
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+          선대 상점 주인이 남긴 막대한 빚을 30일 이내에 청산해야만 차원문 상점의 독점 운영권을 지킬 수 있습니다.
+          매 7일마다 돌아오는 상환 기한을 반드시 엄수하세요!
+        </p>
+
+        <div class="debt-schedule" id="debtScheduleList">
+          <!-- JS 동적 생성 -->
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted);">현재 필요 상환액:</div>
+            <div style="font-size: 20px; font-weight: 800; color: #ff7675;" id="debtCurrentTarget">1,000 G</div>
+          </div>
+          <button class="btn-main" id="btnPayDebt" style="padding: 10px 20px; font-size: 14px;">
+            💵 대출금 상환하기
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 모달: 진열대 가격 책정 -->
+  <div class="modal-backdrop" id="modalPriceSet">
+    <div class="modal-box">
+      <div class="modal-title">🏷️ 진열대 가격 책정</div>
+      <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 16px;">
+        <div id="modalItemIcon" style="font-size: 40px; background: var(--bg-dark); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">📦</div>
+        <div>
+          <div id="modalItemName" style="font-size: 15px; font-weight: 700;">아이템 이름</div>
+          <div id="modalItemTier" style="font-size: 11px; margin-top: 2px;">희귀도</div>
+          <div id="modalItemBasePrice" style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">기준 원가: 100 G</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 12px; font-weight: 600; color: var(--gold-light); display: flex; justify-content: space-between;">
+          <span>판매 희망 가격 책정:</span>
+          <span id="priceRatioDisplay" style="color: var(--cyan);">100% (적정)</span>
+        </label>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <input type="number" id="inputCustomPrice" min="1" max="99999" value="100" style="flex: 1; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: #fff; font-size: 16px; font-weight: 700;">
+          <button class="btn-icon" id="btnPriceMinus">-10%</button>
+          <button class="btn-icon" id="btnPriceBase">원가</button>
+          <button class="btn-icon" id="btnPricePlus">+15%</button>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
+          💡 <strong>가격 심리 팁:</strong> 적정 가격(100~115%)에서는 손님이 팁을 주고 콤보가 올라가며, 140%를 넘으면 분노하여 가게를 나갑니다!
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-main" id="btnConfirmPutOnShowcase">진열대에 올리기</button>
+        <button class="btn-icon" id="btnCancelPutOnShowcase" style="padding: 10px 16px;">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달: 일일 결산 영수증 -->
+  <div class="modal-backdrop" id="modalSettlement">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-title">📊 일일 영업 결산 보고서</div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;" id="settlementDayText">Day 1 영업이 종료되었습니다.</p>
+      
+      <div style="background: var(--bg-dark); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span>총 방문 손님 수:</span>
+          <strong id="setCustCount">0 명</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span>판매 성공 건수:</span>
+          <strong id="setSalesCount" style="color: var(--emerald);">0 건</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span>대만족 팁 수익:</span>
+          <strong id="setTipAmount" style="color: var(--gold-primary);">+0 G</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span>최대 콤보 배율:</span>
+          <strong id="setMaxCombo" style="color: var(--cyan);">x0</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; border-top: 1px solid var(--border-color); padding-top: 8px; color: var(--gold-light);">
+          <span>오늘 순수익:</span>
+          <strong id="setTotalRevenue">+0 G</strong>
+        </div>
+      </div>
+
+      <button class="btn-main" id="btnCloseSettlementModal" style="width: 100%;">
+        밤의 던전 탐험하러 가기 🌙
+      </button>
+    </div>
+  </div>
+
+  <!-- 모달: 도움말 및 조작법 -->
+  <div class="modal-backdrop" id="modalHelp">
+    <div class="modal-box" style="max-width: 520px;">
+      <div class="modal-title">📖 모험가 & 상인 가이드</div>
+      <div style="font-size: 13px; color: var(--text-main); display: flex; flex-direction: column; gap: 12px; line-height: 1.5; max-height: 420px; overflow-y: auto; padding-right: 6px;">
+        <div>
+          <strong style="color: var(--gold-primary);">1. 주야간 듀얼 루프 (Dual Loop)</strong>
+          <p style="color: var(--text-muted); font-size: 12px;">
+            낮에는 던전 전리품을 진열대에 올리고 가격을 매겨 손님들에게 팝니다. 밤에는 던전으로 들어가 몬스터를 사냥하고 보물상자를 열어 더 귀한 전리품을 파밍합니다.
+          </p>
+        </div>
+        <div>
+          <strong style="color: var(--cyan);">2. 던전 전투 조작법</strong>
+          <ul style="color: var(--text-muted); font-size: 12px; margin-left: 18px; margin-top: 4px;">
+            <li><strong>이동:</strong> W, A, S, D 키 또는 방향키</li>
+            <li><strong>검 공격 (근접):</strong> 마우스 좌클릭</li>
+            <li><strong>활 공격 (원거리):</strong> Q 키 또는 마우스 우클릭</li>
+            <li><strong>회피 대시:</strong> Spacebar (무적 판정, 쿨다운 있음)</li>
+            <li><strong>탈출 포탈:</strong> E 키로 상호작용 또는 HUD 귀환 버튼</li>
+          </ul>
+        </div>
+        <div>
+          <strong style="color: var(--emerald);">3. 손님 유형 & 가격 심리</strong>
+          <p style="color: var(--text-muted); font-size: 12px;">
+            마을 주민, 모험가, 수집가, 부유한 귀족 손님은 각자 지불 용의가 다릅니다. 적정가(100~115%)를 유지하면 팁과 콤보 배율로 큰돈을 법니다.
+          </p>
+        </div>
+        <div>
+          <strong style="color: #ff7675;">4. 30일 빚 청산 챌린지</strong>
+          <p style="color: var(--text-muted); font-size: 12px;">
+            Day 7, 14, 21, 28일에 찾아오는 대출금을 갚지 못하면 파산합니다! 매일 밤낮 쉬지 않고 상점과 던전을 번갈아 공략하세요.
+          </p>
+        </div>
+      </div>
+      <div style="margin-top: 18px; display: flex; justify-content: space-between;">
+        <button class="btn-icon" id="btnResetSave" style="color: #ff7675; border-color: #d63031;">⚠️ 세이브 초기화</button>
+        <button class="btn-main" id="btnCloseHelp" style="padding: 8px 18px; font-size: 13px;">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 알림 컨테이너 -->
+  <div id="toastContainer"></div>
+
+  <!-- 게임 엔진 전체 스크립트 -->
+  <script>
+    /* ==========================================================================
+       1. SOUND & AUDIO ENGINE (Web Audio API Synthesizer)
+       ========================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.bgmOsc = null;
+        this.bgmGain = null;
+        this.bgmInterval = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        if (this.muted && this.bgmGain) {
+          this.bgmGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        }
+        return this.muted;
+      }
+
+      // 칼 휘두르는 소리
+      playSwordSwing() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          osc.frequency.exponentialRampToValueAtTime(80, now + 0.12);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } catch (e) {}
+      }
+
+      // 활 발사 소리
+      playBowShot() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.09);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        } catch (e) {}
+      }
+
+      // 적 타격음
+      playHit() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch (e) {}
+      }
+
+      // 대시 회피음
+      playDash() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(200, now);
+          osc.frequency.exponentialRampToValueAtTime(600, now + 0.18);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } catch (e) {}
+      }
+
+      // 계산대 판매 벨소리 (Ka-ching!)
+      playKaChing() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          // 첫 번째 높은 종소리
+          const osc1 = this.ctx.createOscillator();
+          const gain1 = this.ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(987.77, now); // B5
+          gain1.gain.setValueAtTime(0.3, now);
+          gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc1.connect(gain1);
+          gain1.connect(this.ctx.destination);
+          osc1.start(now);
+          osc1.stop(now + 0.35);
+
+          // 두 번째 반음 화음 (더 높은 은은한 울림)
+          const osc2 = this.ctx.createOscillator();
+          const gain2 = this.ctx.createGain();
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+          gain2.gain.setValueAtTime(0.35, now + 0.08);
+          gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+          osc2.connect(gain2);
+          gain2.connect(this.ctx.destination);
+          osc2.start(now + 0.08);
+          osc2.stop(now + 0.5);
+        } catch (e) {}
+      }
+
+      // 아이템 전리품 획득음
+      playLoot() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15); // G5
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch (e) {}
+      }
+
+      // 거절 / 에러음
+      playReject() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.setValueAtTime(110, now + 0.12);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } catch (e) {}
+      }
+    }
+
+    const audio = new SoundEngine();
+
+    /* ==========================================================================
+       2. ITEM & CRAFTING DATABASE (18종 이상 전리품 & 명품 레시피)
+       ========================================================================== */
+    const ITEM_DATABASE = {
+      // 1. 숲 미궁 (Verdant Labyrinth)
+      slime_jelly: { id: 'slime_jelly', name: '슬라임 젤리', icon: '🟢', tier: 'common', basePrice: 20, desc: '탄력 있고 끈적거리는 녹색 젤리. 약제 기본 재료.' },
+      vine_stem: { id: 'vine_stem', name: '덩굴 줄기', icon: '🌿', tier: 'common', basePrice: 35, desc: '질기고 튼튼한 숲의 덩굴. 활줄이나 밧줄에 쓰임.' },
+      forest_essence: { id: 'forest_essence', name: '숲의 정수', icon: '💧', tier: 'uncommon', basePrice: 65, desc: '고목의 이슬이 맺힌 신비한 농축 정수.' },
+      ancient_leaf: { id: 'ancient_leaf', name: '고대 잎사귀', icon: '🍃', tier: 'rare', basePrice: 120, desc: '수백 년간 썩지 않고 은은한 향을 내뿜는 잎.' },
+      raw_emerald: { id: 'raw_emerald', name: '에메랄드 원석', icon: '💎', tier: 'epic', basePrice: 250, desc: '숲 깊은 바위 속에서 캔 찬란한 녹색 보석.' },
+
+      // 2. 사막 유적 (Sunken Ruins)
+      weathered_bone: { id: 'weathered_bone', name: '풍화된 뼈', icon: '🦴', tier: 'common', basePrice: 40, desc: '사막의 모래바람에 하얗게 바랜 몬스터의 뼈.' },
+      mummy_wrap: { id: 'mummy_wrap', name: '미이라 붕대', icon: '📜', tier: 'uncommon', basePrice: 75, desc: '고대 방부 처리가 되어 있는 신비한 천 조각.' },
+      scorpion_stinger: { id: 'scorpion_stinger', name: '전갈 독침', icon: '🦂', tier: 'rare', basePrice: 140, desc: '마비 독이 묻어 있어 무기 코팅에 애용되는 침.' },
+      ancient_papyrus: { id: 'ancient_papyrus', name: '고대 파피루스', icon: '📑', tier: 'rare', basePrice: 220, desc: '사라진 왕국의 잊혀진 마법 주문이 적힌 고문서.' },
+      sun_gem: { id: 'sun_gem', name: '태양의 황금석', icon: '☀️', tier: 'legendary', basePrice: 500, desc: '한낮의 태양빛을 영구히 가둬둔 눈부신 보석.' },
+
+      // 3. 용암 동굴 (Molten Cavern)
+      magma_shard: { id: 'magma_shard', name: '마그마 파편', icon: '🪨', tier: 'common', basePrice: 70, desc: '식지 않고 뜨거운 열기를 품은 검붉은 암석 조각.' },
+      obsidian_ore: { id: 'obsidian_ore', name: '흑요석 광석', icon: '🖤', tier: 'uncommon', basePrice: 130, desc: '날카롭고 견고한 유리질의 검은 광물.' },
+      fire_core: { id: 'fire_core', name: '화염 핵', icon: '🔥', tier: 'rare', basePrice: 280, desc: '불꽃 골렘의 가슴에서 추출한 꺼지지 않는 불씨.' },
+      lava_chitin: { id: 'lava_chitin', name: '용암 갑각', icon: '🛡️', tier: 'epic', basePrice: 480, desc: '마그마 속에서도 녹지 않는 단단한 외골격.' },
+      crimson_ruby: { id: 'crimson_ruby', name: '진홍빛 루비', icon: '🔴', tier: 'legendary', basePrice: 850, desc: '용의 숨결을 받아 빚어진 극상의 붉은 보석.' },
+
+      // 4. 고대 성소 (Ancient Sanctuary)
+      starlight_dust: { id: 'starlight_dust', name: '별빛 가루', icon: '✨', tier: 'uncommon', basePrice: 180, desc: '차원의 틈새에서 부서져 내린 반짝이는 가루.' },
+      void_crystal: { id: 'void_crystal', name: '공허의 수정', icon: '🔮', tier: 'rare', basePrice: 380, desc: '주변의 빛을 왜곡시키는 암흑의 크리스탈.' },
+      celestial_feather: { id: 'celestial_feather', name: '천상의 깃털', icon: '🪶', tier: 'epic', basePrice: 700, desc: '차원 수호자의 날개에서 떨어진 영롱한 깃털.' },
+      ancient_rune: { id: 'ancient_rune', name: '고대 동력 룬', icon: '💠', tier: 'legendary', basePrice: 1200, desc: '차원문을 열고 닫을 수 있는 절대적인 마력 룬.' },
+      mythic_relic: { id: 'mythic_relic', name: '신화의 성배', icon: '🏆', tier: 'legendary', basePrice: 2500, desc: '고대 신화 속 신들이 마셨다고 전해지는 보물.' },
+
+      // 크래프팅 완성품
+      potion_hp: { id: 'potion_hp', name: '비전 치유 물약', icon: '🧪', tier: 'uncommon', basePrice: 90, desc: '즉시 체력을 60 회복하거나 상점에서 고가에 팔림.' },
+      verdant_bow: { id: 'verdant_bow', name: '숲의 수호궁', icon: '🏹', tier: 'rare', basePrice: 320, desc: '덩굴과 에메랄드로 세공한 경량 사냥 활.' },
+      desert_amulet: { id: 'desert_amulet', name: '태양신의 부적', icon: '📿', tier: 'epic', basePrice: 750, desc: '사막의 군주들이 목에 걸던 보호의 아뮬렛.' },
+      magma_sword: { id: 'magma_sword', name: '마그마 룬 소드', icon: '🗡️', tier: 'epic', basePrice: 1500, desc: '베는 즉시 적을 불태우는 흑요석 대검.' },
+      void_crown: { id: 'void_crown', name: '차원 군주의 왕관', icon: '👑', tier: 'legendary', basePrice: 4200, desc: '귀족들이 영혼을 팔아서라도 사고 싶어 하는 보물.' }
+    };
+
+    const CRAFTING_RECIPES = [
+      {
+        id: 'potion_hp',
+        name: '비전 치유 물약',
+        icon: '🧪',
+        outputItem: 'potion_hp',
+        count: 1,
+        materials: [ { id: 'slime_jelly', count: 2 }, { id: 'forest_essence', count: 1 } ],
+        desc: '모험가와 주민들에게 인기 폭발인 회복 물약.'
+      },
+      {
+        id: 'verdant_bow',
+        name: '숲의 수호궁',
+        icon: '🏹',
+        outputItem: 'verdant_bow',
+        count: 1,
+        materials: [ { id: 'vine_stem', count: 3 }, { id: 'ancient_leaf', count: 2 }, { id: 'raw_emerald', count: 1 } ],
+        desc: '모험가들이 큰돈을 주고 사려는 명품 활.'
+      },
+      {
+        id: 'desert_amulet',
+        name: '태양신의 부적',
+        icon: '📿',
+        outputItem: 'desert_amulet',
+        count: 1,
+        materials: [ { id: 'ancient_papyrus', count: 2 }, { id: 'sun_gem', count: 1 } ],
+        desc: '수집가들이 환호하는 유물 아뮬렛.'
+      },
+      {
+        id: 'magma_sword',
+        name: '마그마 룬 소드',
+        icon: '🗡️',
+        outputItem: 'magma_sword',
+        count: 1,
+        materials: [ { id: 'obsidian_ore', count: 3 }, { id: 'fire_core', count: 2 }, { id: 'crimson_ruby', count: 1 } ],
+        desc: '치명적인 화염을 내뿜는 맹렬한 대검.'
+      },
+      {
+        id: 'void_crown',
+        name: '차원 군주의 왕관',
+        icon: '👑',
+        outputItem: 'void_crown',
+        count: 1,
+        materials: [ { id: 'void_crystal', count: 2 }, { id: 'ancient_rune', count: 1 }, { id: 'mythic_relic', count: 1 } ],
+        desc: '부유한 귀족에게 엄청난 바가지를 씌울 수 있는 왕관.'
+      }
+    ];
+
+    /* ==========================================================================
+       3. GAME STATE & SAVE SYSTEM (LocalStorage 실시간 영구 보존)
+       ========================================================================== */
+    const SAVE_KEY = 'MOONLIGHT_MERCHANT_SAVE_V1';
+
+    const defaultGameState = {
+      day: 1,
+      phase: 'shop', // 'shop' | 'town' | 'dungeon'
+      gold: 300,
+      debtStage: 0,
+      debtPaid: false,
+      debtDeadlines: [
+        { day: 7, amount: 1000, paid: false },
+        { day: 14, amount: 4000, paid: false },
+        { day: 21, amount: 10000, paid: false },
+        { day: 28, amount: 25000, paid: false }
+      ],
+      // 16칸 배낭: { itemId, count }
+      inventory: [
+        { itemId: 'slime_jelly', count: 3 },
+        { itemId: 'vine_stem', count: 2 },
+        { itemId: 'forest_essence', count: 1 }
+      ],
+      // 상점 쇼케이스 슬롯 (기본 2칸 해금)
+      showcaseCapacity: 2,
+      showcase: [
+        { itemId: null, price: 0 },
+        { itemId: null, price: 0 },
+        { itemId: null, price: 0 },
+        { itemId: null, price: 0 },
+        { itemId: null, price: 0 },
+        { itemId: null, price: 0 },
+        { itemId: null, price: 0 },
+        { itemId: null, price: 0 }
+      ],
+      // 상점 인프라 업그레이드
+      shopUpgrades: {
+        carpet: 0,     // 0: 기본, 1: 벨벳 카펫 (손님 만족/체류 +20%)
+        security: 0,   // 0: 없음, 1: 골렘 방범 경비 (도둑 100% 방지)
+        chandelier: 0  // 0: 없음, 1: 수정 샹들리에 (귀족/수집가 출현율 +50%)
+      },
+      // 대장간 레벨 및 플레이어 스탯
+      forgeLevel: 1,
+      equipment: {
+        swordTier: 1,  // 1: 나무검, 2: 강철검, 3: 룬소드, 4: 신성검
+        bowTier: 1,    // 1: 사냥활, 2: 강화활, 3: 마법활, 4: 성스러운활
+        armorTier: 1,  // 1: 가죽옷, 2: 사슬갑옷, 3: 판금갑옷, 4: 용비늘갑옷
+        bootsTier: 1   // 1: 가죽신, 2: 민첩의장화, 3: 바람걸음
+      },
+      unlockedDungeons: [1], // 1: 숲, 2: 사막, 3: 용암, 4: 성소
+      highestDungeonCleared: 0
+    };
+
+    let state = JSON.parse(JSON.stringify(defaultGameState));
+
+    function loadGame() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state = Object.assign({}, defaultGameState, parsed);
+          // 하위 객체 머지
+          state.shopUpgrades = Object.assign({}, defaultGameState.shopUpgrades, parsed.shopUpgrades);
+          state.equipment = Object.assign({}, defaultGameState.equipment, parsed.equipment);
+        }
+      } catch (e) {
+        console.error('Failed to load save:', e);
+      }
+    }
+
+    function saveGame(showToastMsg = true) {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+        if (showToastMsg) {
+          showToast('💾 게임 데이터가 안전하게 저장되었습니다!');
+        }
+      } catch (e) {
+        console.error('Failed to save:', e);
+      }
+    }
+
+    function resetGame() {
+      if (confirm('정말로 모든 진행 데이터를 초기화하고 1일차로 되돌아가시겠습니까?')) {
+        localStorage.removeItem(SAVE_KEY);
+        state = JSON.parse(JSON.stringify(defaultGameState));
+        saveGame(false);
+        location.reload();
+      }
+    }
+
+    /* ==========================================================================
+       4. UI TOAST & NOTIFICATION HELPERS
+       ========================================================================== */
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const div = document.createElement('div');
+      div.className = 'toast';
+      div.innerText = message;
+      container.appendChild(div);
+      setTimeout(() => {
+        if (div.parentNode) div.parentNode.removeChild(div);
+      }, 3000);
+    }
+
+    /* ==========================================================================
+       5. SHOP SIMULATION ENGINE (Canvas Rendering & Customer AI)
+       ========================================================================== */
+    class ShopSimulation {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.isOpen = false;
+        this.customers = [];
+        this.maxCustomers = 5;
+        this.spawnTimer = 0;
+        this.todayStats = {
+          customers: 0,
+          sales: 0,
+          tips: 0,
+          revenue: 0,
+          combo: 0,
+          maxCombo: 0
+        };
+        this.animFrame = null;
+        this.lastTime = performance.now();
+        this.decorations = [];
+      }
+
+      start() {
+        this.isOpen = true;
+        this.todayStats = { customers: 0, sales: 0, tips: 0, revenue: 0, combo: 0, maxCombo: 0 };
+        this.customers = [];
+        this.spawnTimer = 20; // 0.3초 후 첫 손님 스폰
+        this.updateUIStats();
+        document.getElementById('btnStartShop').style.display = 'none';
+        document.getElementById('btnCloseShop').style.display = 'block';
+        showToast('🔔 상점 문을 열었습니다! 손님들이 방문합니다.');
+        this.loop();
+      }
+
+      stop() {
+        this.isOpen = false;
+        document.getElementById('btnStartShop').style.display = 'block';
+        document.getElementById('btnCloseShop').style.display = 'none';
+        showSettlementModal(this.todayStats);
+      }
+
+      updateUIStats() {
+        document.getElementById('statCustomerCount').innerText = `${this.todayStats.customers} 명`;
+        document.getElementById('statSalesCount').innerText = `${this.todayStats.sales} 건`;
+        document.getElementById('statTipsAmount').innerText = `${this.todayStats.tips.toLocaleString()} G`;
+        document.getElementById('statTodayRevenue').innerText = `${this.todayStats.revenue.toLocaleString()} G`;
+        
+        const comboBadge = document.getElementById('shopComboBadge');
+        if (this.todayStats.combo > 1) {
+          comboBadge.innerText = `COMBO x${this.todayStats.combo} (+${(this.todayStats.combo * 5)}% 보너스)`;
+          comboBadge.style.color = 'var(--gold-primary)';
+        } else {
+          comboBadge.innerText = `COMBO x${this.todayStats.combo}`;
+          comboBadge.style.color = 'var(--text-muted)';
+        }
+      }
+
+      spawnCustomer() {
+        if (this.customers.length >= this.maxCustomers) return;
+
+        // 손님 유형 4종 가중치 결정 (샹들리에 업그레이드 시 귀족/수집가 증가)
+        const types = ['villager', 'adventurer', 'collector', 'noble'];
+        let weights = [40, 35, 15, 10];
+        if (state.shopUpgrades.chandelier) {
+          weights = [25, 30, 25, 20];
+        }
+
+        const rand = Math.random() * 100;
+        let cum = 0;
+        let chosenType = 'villager';
+        for (let i = 0; i < types.length; i++) {
+          cum += weights[i];
+          if (rand <= cum) {
+            chosenType = types[i];
+            break;
+          }
+        }
+
+        // 도둑 손님 (골렘 경비가 없을 때 5% 확률로 발생)
+        const isThief = (!state.shopUpgrades.security && Math.random() < 0.05);
+
+        const customer = {
+          x: 380,
+          y: 480, // 상점 문 입구 (하단 중앙)
+          targetX: 0,
+          targetY: 0,
+          type: chosenType,
+          isThief: isThief,
+          speed: state.shopUpgrades.carpet ? 2.4 : 1.8,
+          state: 'entering', // 'entering' | 'browsing' | 'deciding' | 'leaving'
+          targetSlot: -1,
+          waitTime: 0,
+          bubbleText: '',
+          bubbleColor: '#fff',
+          bubbleTimer: 0
+        };
+
+        // 진열대 중 아이템이 있는 슬롯 선택
+        const availableSlots = [];
+        for (let i = 0; i < state.showcaseCapacity; i++) {
+          if (state.showcase[i] && state.showcase[i].itemId) {
+            availableSlots.push(i);
+          }
+        }
+
+        if (availableSlots.length > 0) {
+          customer.targetSlot = availableSlots[Math.floor(Math.random() * availableSlots.length)];
+          const slotPos = this.getSlotCanvasCoord(customer.targetSlot);
+          customer.targetX = slotPos.x;
+          customer.targetY = slotPos.y + 40;
+        } else {
+          // 아이템이 없으면 둘러보다 실망하고 나감
+          customer.targetX = 200 + Math.random() * 360;
+          customer.targetY = 250 + Math.random() * 100;
+        }
+
+        this.customers.push(customer);
+        this.todayStats.customers++;
+        this.updateUIStats();
+      }
+
+      getSlotCanvasCoord(index) {
+        // 상점 내 진열대 8개 배치 좌표
+        const coords = [
+          { x: 160, y: 160 }, { x: 300, y: 160 },
+          { x: 460, y: 160 }, { x: 600, y: 160 },
+          { x: 160, y: 300 }, { x: 300, y: 300 },
+          { x: 460, y: 300 }, { x: 600, y: 300 }
+        ];
+        return coords[index] || { x: 380, y: 240 };
+      }
+
+      update(dt) {
+        if (!this.isOpen) return;
+
+        // 스폰 타이머
+        this.spawnTimer -= dt * 60;
+        if (this.spawnTimer <= 0) {
+          this.spawnCustomer();
+          this.spawnTimer = 90 + Math.random() * 120; // 1.5 ~ 3.5초 간격
+        }
+
+        for (let i = this.customers.length - 1; i >= 0; i--) {
+          const c = this.customers[i];
+
+          // 버블 타이머
+          if (c.bubbleTimer > 0) {
+            c.bubbleTimer -= dt;
+          }
+
+          if (c.state === 'entering') {
+            const dx = c.targetX - c.x;
+            const dy = c.targetY - c.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < 5) {
+              c.x = c.targetX;
+              c.y = c.targetY;
+              c.state = 'browsing';
+              c.waitTime = 1.0 + Math.random() * 1.5;
+            } else {
+              c.x += (dx / dist) * c.speed;
+              c.y += (dy / dist) * c.speed;
+            }
+          } else if (c.state === 'browsing') {
+            c.waitTime -= dt;
+            if (c.waitTime <= 0) {
+              this.evaluatePurchase(c);
+            }
+          } else if (c.state === 'leaving') {
+            const dx = 380 - c.x;
+            const dy = 500 - c.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < 8) {
+              this.customers.splice(i, 1);
+            } else {
+              c.x += (dx / dist) * (c.speed * 1.3);
+              c.y += (dy / dist) * (c.speed * 1.3);
+            }
+          }
+        }
+      }
+
+      evaluatePurchase(c) {
+        if (c.targetSlot === -1 || !state.showcase[c.targetSlot] || !state.showcase[c.targetSlot].itemId) {
+          c.bubbleText = '🤔 살 게 없네...';
+          c.bubbleColor = '#b2bec3';
+          c.bubbleTimer = 2.0;
+          c.state = 'leaving';
+          return;
+        }
+
+        const slot = state.showcase[c.targetSlot];
+        const item = ITEM_DATABASE[slot.itemId];
+        if (!item) {
+          c.state = 'leaving';
+          return;
+        }
+
+        const basePrice = item.basePrice;
+        const setPrice = slot.price;
+        const ratio = setPrice / basePrice;
+
+        // 고객 유형별 추가 지불 허용치
+        let tolerance = 1.0;
+        if (c.type === 'villager') tolerance = 1.05;
+        if (c.type === 'adventurer') tolerance = 1.18;
+        if (c.type === 'collector') tolerance = 1.38;
+        if (c.type === 'noble') tolerance = 1.65;
+
+        // 1. 거저 주는 가격 (너무 쌈)
+        if (ratio <= 0.85) {
+          c.bubbleText = '🤑 대박! 거저네!';
+          c.bubbleColor = '#55efc4';
+          c.bubbleTimer = 2.2;
+          this.completeSale(c, slot, setPrice, 0);
+        }
+        // 2. 적정 가격 (대만족 + 팁 + 콤보 상승)
+        else if (ratio <= tolerance) {
+          const tip = Math.floor(setPrice * (0.05 + Math.random() * 0.15));
+          c.bubbleText = `😊 훌륭해! (+팁 ${tip}G)`;
+          c.bubbleColor = '#f6c85f';
+          c.bubbleTimer = 2.2;
+          this.completeSale(c, slot, setPrice, tip);
+        }
+        // 3. 살짝 비쌈 (흥정/고민 판정)
+        else if (ratio <= tolerance * 1.25) {
+          if (Math.random() < 0.45) {
+            c.bubbleText = '🤔 비싸지만 사지!';
+            c.bubbleColor = '#fdcb6e';
+            c.bubbleTimer = 2.2;
+            this.completeSale(c, slot, setPrice, 0);
+          } else {
+            c.bubbleText = '💸 너무 비싸다...';
+            c.bubbleColor = '#ff7675';
+            c.bubbleTimer = 2.0;
+            this.failSale(c);
+          }
+        }
+        // 4. 사기꾼 가격 (바가지 분노)
+        else {
+          c.bubbleText = '😡 날 호구로 보나?!';
+          c.bubbleColor = '#d63031';
+          c.bubbleTimer = 2.2;
+          audio.playReject();
+          this.failSale(c);
+        }
+
+        c.state = 'leaving';
+      }
+
+      completeSale(c, slot, price, tip) {
+        audio.playKaChing();
+        this.todayStats.sales++;
+        this.todayStats.combo++;
+        if (this.todayStats.combo > this.todayStats.maxCombo) {
+          this.todayStats.maxCombo = this.todayStats.combo;
+        }
+
+        // 콤보 보너스 골드
+        const comboBonus = Math.floor(price * (this.todayStats.combo * 0.05));
+        const finalGold = price + tip + comboBonus;
+
+        this.todayStats.tips += tip;
+        this.todayStats.revenue += finalGold;
+        state.gold += finalGold;
+
+        // 아이템 소모
+        slot.itemId = null;
+        slot.price = 0;
+
+        renderShowcaseUI();
+        renderInventoryUI();
+        updateHeaderHUD();
+        this.updateUIStats();
+        saveGame(false);
+      }
+
+      failSale(c) {
+        this.todayStats.combo = 0;
+        this.updateUIStats();
+      }
+
+      render() {
+        const ctx = this.ctx;
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+
+        // 상점 바닥 렌더링 (원목 우드 타일)
+        ctx.fillStyle = '#2c1e14';
+        ctx.fillRect(0, 0, w, h);
+
+        // 카펫 (업그레이드 시 고급 주홍 벨벳 카펫)
+        if (state.shopUpgrades.carpet) {
+          ctx.fillStyle = '#8b0000';
+          ctx.fillRect(100, 80, w - 200, h - 140);
+          ctx.strokeStyle = '#f6c85f';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(100, 80, w - 200, h - 140);
+        } else {
+          ctx.fillStyle = '#3e2d1d';
+          ctx.fillRect(120, 100, w - 240, h - 180);
+        }
+
+        // 카운터 데스크 & 플레이어 점원
+        ctx.fillStyle = '#533c2a';
+        ctx.fillRect(330, 40, 100, 40);
+        ctx.strokeStyle = '#271a10';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(330, 40, 100, 40);
+
+        // 플레이어 캐릭터 (카운터 뒤)
+        ctx.font = '28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🧙‍♂️', 380, 42);
+
+        // 출입구 (하단 중앙 문)
+        ctx.fillStyle = '#1a1008';
+        ctx.fillRect(340, h - 16, 80, 16);
+        ctx.fillStyle = '#ffea9f';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('🚪 입구', 380, h - 2);
+
+        // 방범 골렘 (업그레이드 시)
+        if (state.shopUpgrades.security) {
+          ctx.font = '26px sans-serif';
+          ctx.fillText('🤖', 80, 60);
+          ctx.font = '10px sans-serif';
+          ctx.fillStyle = '#00d2d3';
+          ctx.fillText('경비 골렘', 80, 80);
+        }
+
+        // 화려한 샹들리에 (업그레이드 시)
+        if (state.shopUpgrades.chandelier) {
+          ctx.font = '26px sans-serif';
+          ctx.fillText('✨', 380, 110);
+        }
+
+        // 진열대 매대 8개 렌더링
+        for (let i = 0; i < 8; i++) {
+          const pos = this.getSlotCanvasCoord(i);
+          const isUnlocked = i < state.showcaseCapacity;
+
+          // 매대 테이블
+          if (isUnlocked) {
+            ctx.fillStyle = '#6e4f32';
+            ctx.strokeStyle = '#3e2714';
+            ctx.lineWidth = 2;
+            ctx.fillRect(pos.x - 36, pos.y - 24, 72, 48);
+            ctx.strokeRect(pos.x - 36, pos.y - 24, 72, 48);
+
+            const slot = state.showcase[i];
+            if (slot && slot.itemId) {
+              const item = ITEM_DATABASE[slot.itemId];
+              if (item) {
+                ctx.font = '22px sans-serif';
+                ctx.fillText(item.icon, pos.x, pos.y - 2);
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillStyle = '#f6c85f';
+                ctx.fillText(`${slot.price}G`, pos.x, pos.y + 18);
+              }
+            } else {
+              ctx.font = '10px sans-serif';
+              ctx.fillStyle = '#8b7765';
+              ctx.fillText('(빈 매대)', pos.x, pos.y + 4);
+            }
+          } else {
+            // 잠긴 매대
+            ctx.fillStyle = '#221a14';
+            ctx.strokeStyle = '#33271e';
+            ctx.fillRect(pos.x - 36, pos.y - 24, 72, 48);
+            ctx.strokeRect(pos.x - 36, pos.y - 24, 72, 48);
+            ctx.font = '16px sans-serif';
+            ctx.fillText('🔒', pos.x, pos.y + 5);
+          }
+        }
+
+        // 손님 렌더링
+        for (const c of this.customers) {
+          let emoji = '🚶';
+          if (c.type === 'villager') emoji = '🧑‍🌾';
+          if (c.type === 'adventurer') emoji = '🗡️';
+          if (c.type === 'collector') emoji = '🧐';
+          if (c.type === 'noble') emoji = '👑';
+          if (c.isThief) emoji = '🦹';
+
+          ctx.font = '24px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(emoji, c.x, c.y);
+
+          // 손님 말풍선
+          if (c.bubbleTimer > 0 && c.bubbleText) {
+            ctx.font = 'bold 11px sans-serif';
+            const metrics = ctx.measureText(c.bubbleText);
+            const bw = metrics.width + 16;
+            const bh = 22;
+            const bx = c.x - bw / 2;
+            const by = c.y - 38;
+
+            ctx.fillStyle = 'rgba(15, 17, 26, 0.9)';
+            ctx.strokeStyle = c.bubbleColor;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bw, bh, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = c.bubbleColor;
+            ctx.fillText(c.bubbleText, c.x, by + 15);
+          }
+        }
+      }
+
+      loop() {
+        const now = performance.now();
+        const dt = (now - this.lastTime) / 1000;
+        this.lastTime = now;
+
+        this.update(dt);
+        this.render();
+
+        if (this.isOpen) {
+          this.animFrame = requestAnimationFrame(() => this.loop());
+        }
+      }
+    }
+
+    /* ==========================================================================
+       6. DUNGEON TOP-DOWN ACTION ENGINE (WASD, Sword Swing, Bow, Dodge, Bosses)
+       ========================================================================== */
+    class DungeonEngine {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.isActive = false;
+        this.currentDungeonId = 1;
+        this.floor = 1;
+        this.maxFloors = 3;
+
+        // 플레이어 오브젝트
+        this.player = {
+          x: 440,
+          y: 260,
+          vx: 0,
+          vy: 0,
+          radius: 16,
+          speed: 3.6,
+          hp: 100,
+          maxHp: 100,
+          swordDamage: 30,
+          bowDamage: 22,
+          isDashing: false,
+          dashCooldown: 0,
+          dashMaxCooldown: 1.5,
+          dashDuration: 0.22,
+          invincibleTime: 0,
+          aimAngle: 0,
+          attackCooldown: 0,
+          activeWeapon: 'sword' // 'sword' | 'bow'
+        };
+
+        this.keys = {};
+        this.mouse = { x: 0, y: 0, isDown: false };
+        this.monsters = [];
+        this.projectiles = [];
+        this.particles = [];
+        this.chests = [];
+        this.drops = [];
+        this.portals = [];
+        this.roomCleared = false;
+        this.boss = null;
+        this.lastTime = performance.now();
+        this.animFrame = null;
+
+        this.initInput();
+      }
+
+      initInput() {
+        window.addEventListener('keydown', (e) => {
+          this.keys[e.code] = true;
+          if (e.code === 'KeyQ') {
+            this.player.activeWeapon = (this.player.activeWeapon === 'sword' ? 'bow' : 'sword');
+            showToast(`무기 전환: ${this.player.activeWeapon === 'sword' ? '🗡️ 근접 검' : '🏹 원거리 활'}`);
+          }
+          if (e.code === 'Space') {
+            this.tryDash();
+          }
+          if (e.code === 'KeyE') {
+            this.interact();
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          this.keys[e.code] = false;
+        });
+
+        this.canvas.addEventListener('mousemove', (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          this.mouse.x = e.clientX - rect.left;
+          this.mouse.y = e.clientY - rect.top;
+        });
+
+        this.canvas.addEventListener('mousedown', (e) => {
+          this.mouse.isDown = true;
+          if (this.isActive) {
+            this.tryAttack();
+          }
+        });
+
+        this.canvas.addEventListener('mouseup', () => {
+          this.mouse.isDown = false;
+        });
+      }
+
+      start(dungeonId) {
+        this.isActive = true;
+        this.currentDungeonId = dungeonId;
+        this.floor = 1;
+
+        // 플레이어 스탯 장비 반영
+        this.applyEquipmentStats();
+        this.player.hp = this.player.maxHp;
+
+        document.getElementById('dungeonSelectArea').style.display = 'none';
+        document.getElementById('dungeonCanvasBox').style.display = 'flex';
+        document.getElementById('dungeonHud').style.display = 'flex';
+
+        this.generateRoom();
+        this.lastTime = performance.now();
+        this.loop();
+      }
+
+      stop(isDeath = false) {
+        this.isActive = false;
+        if (this.animFrame) cancelAnimationFrame(this.animFrame);
+
+        document.getElementById('dungeonSelectArea').style.display = 'block';
+        document.getElementById('dungeonCanvasBox').style.display = 'none';
+        document.getElementById('dungeonHud').style.display = 'none';
+
+        if (isDeath) {
+          // 사망 패널티: 배낭 아이템 절반 유실
+          const lostCount = Math.floor(state.inventory.length / 2);
+          for (let i = 0; i < lostCount; i++) {
+            state.inventory.pop();
+          }
+          showToast('💀 던전에서 쓰러져 마을 의무실로 후송되었습니다... (전리품 일부 유실)');
+        } else {
+          showToast('🏰 안전하게 마을로 귀환했습니다!');
+        }
+
+        // 밤 탐험 종료 -> 다음 날 아침 전환
+        state.day++;
+        state.phase = 'shop';
+        saveGame(false);
+        updateHeaderHUD();
+        renderInventoryUI();
+        switchTab('panelShop');
+      }
+
+      applyEquipmentStats() {
+        const eq = state.equipment;
+        this.player.maxHp = 100 + (eq.armorTier - 1) * 40;
+        this.player.speed = 3.6 + (eq.bootsTier - 1) * 0.7;
+        this.player.swordDamage = 25 + (eq.swordTier - 1) * 20;
+        this.player.bowDamage = 18 + (eq.bowTier - 1) * 16;
+      }
+
+      generateRoom() {
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        this.player.x = w / 2;
+        this.player.y = h - 60;
+        this.monsters = [];
+        this.projectiles = [];
+        this.particles = [];
+        this.chests = [];
+        this.drops = [];
+        this.portals = [];
+        this.roomCleared = false;
+        this.boss = null;
+
+        const isBossFloor = (this.floor === this.maxFloors);
+
+        // HUD 갱신
+        const dungeonNames = ['', '🌲 숲 미궁', '🏜️ 사막 유적', '🌋 용암 동굴', '🏛️ 고대 성소'];
+        document.getElementById('dungeonFloorText').innerText = 
+          `${dungeonNames[this.currentDungeonId]} - ${isBossFloor ? '👑 보스 구역' : `${this.floor}층`}`;
+
+        if (isBossFloor) {
+          this.spawnBoss();
+        } else {
+          // 일반 몬스터 4 ~ 7마리 스폰
+          const count = 4 + Math.floor(Math.random() * 3);
+          for (let i = 0; i < count; i++) {
+            this.spawnMonster();
+          }
+          // 보물상자 1개 스폰
+          this.chests.push({
+            x: 120 + Math.random() * (w - 240),
+            y: 120 + Math.random() * (h - 240),
+            opened: false
+          });
+        }
+      }
+
+      spawnMonster() {
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        const monsterList = {
+          1: [ { name: '슬라임', icon: '🟢', hp: 45, spd: 1.6, drop: 'slime_jelly' }, { name: '독버섯', icon: '🍄', hp: 60, spd: 1.2, drop: 'forest_essence' }, { name: '덩굴괴물', icon: '🪴', hp: 80, spd: 1.0, drop: 'vine_stem' } ],
+          2: [ { name: '모래전갈', icon: '🦂', hp: 85, spd: 2.0, drop: 'scorpion_stinger' }, { name: '미이라', icon: '🧟', hp: 120, spd: 1.1, drop: 'mummy_wrap' }, { name: '유적골렘', icon: '🗿', hp: 150, spd: 0.9, drop: 'weathered_bone' } ],
+          3: [ { name: '화염임프', icon: '👺', hp: 130, spd: 2.2, drop: 'magma_shard' }, { name: '불꽃정령', icon: '🔥', hp: 160, spd: 1.5, drop: 'fire_core' }, { name: '용암게', icon: '🦀', hp: 220, spd: 1.1, drop: 'lava_chitin' } ],
+          4: [ { name: '공허의눈', icon: '👁️', hp: 190, spd: 1.8, drop: 'void_crystal' }, { name: '룬수호병', icon: '🤖', hp: 260, spd: 1.4, drop: 'starlight_dust' }, { name: '빛의망령', icon: '👻', hp: 300, spd: 1.9, drop: 'celestial_feather' } ]
+        };
+
+        const types = monsterList[this.currentDungeonId] || monsterList[1];
+        const t = types[Math.floor(Math.random() * types.length)];
+
+        this.monsters.push({
+          x: 100 + Math.random() * (w - 200),
+          y: 80 + Math.random() * (h - 220),
+          name: t.name,
+          icon: t.icon,
+          hp: t.hp,
+          maxHp: t.hp,
+          speed: t.spd,
+          drop: t.drop,
+          radius: 18,
+          attackTimer: 1.0 + Math.random()
+        });
+      }
+
+      spawnBoss() {
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        const bosses = {
+          1: { name: '숲의 수호 거신 (Forest Titan)', icon: '🌳', hp: 450, spd: 1.2, drop: 'raw_emerald' },
+          2: { name: '모래폭풍 파라오 (Dune Pharaoh)', icon: '🤴', hp: 700, spd: 1.4, drop: 'sun_gem' },
+          3: { name: '용암 드래곤 (Lava Drake)', icon: '🐲', hp: 1100, spd: 1.6, drop: 'crimson_ruby' },
+          4: { name: '차원 지배자 (Dimensional Overlord)', icon: '🌌', hp: 1800, spd: 1.8, drop: 'mythic_relic' }
+        };
+
+        const b = bosses[this.currentDungeonId];
+        this.boss = {
+          x: w / 2,
+          y: 160,
+          name: b.name,
+          icon: b.icon,
+          hp: b.hp,
+          maxHp: b.hp,
+          speed: b.spd,
+          drop: b.drop,
+          radius: 36,
+          attackTimer: 1.5,
+          skillTimer: 4.0
+        };
+      }
+
+      tryDash() {
+        if (this.player.dashCooldown <= 0 && !this.player.isDashing) {
+          this.player.isDashing = true;
+          this.player.dashCooldown = this.player.dashMaxCooldown;
+          this.player.invincibleTime = this.player.dashDuration;
+          audio.playDash();
+
+          // 대시 잔상 파티클
+          for (let i = 0; i < 8; i++) {
+            this.particles.push({
+              x: this.player.x + (Math.random() - 0.5) * 20,
+              y: this.player.y + (Math.random() - 0.5) * 20,
+              vx: 0,
+              vy: 0,
+              life: 0.25,
+              color: '#00d2d3',
+              radius: 6
+            });
+          }
+
+          setTimeout(() => {
+            this.player.isDashing = false;
+          }, this.player.dashDuration * 1000);
+        }
+      }
+
+      tryAttack() {
+        if (this.player.attackCooldown > 0) return;
+
+        const dx = this.mouse.x - this.player.x;
+        const dy = this.mouse.y - this.player.y;
+        const angle = Math.atan2(dy, dx);
+
+        if (this.player.activeWeapon === 'sword') {
+          // 근접 검 휘두르기 (부채꼴 범위 공격)
+          this.player.attackCooldown = 0.28;
+          audio.playSwordSwing();
+
+          // 검 궤적 이펙트 파티클
+          for (let a = -0.6; a <= 0.6; a += 0.2) {
+            const hitAngle = angle + a;
+            this.particles.push({
+              x: this.player.x + Math.cos(hitAngle) * 35,
+              y: this.player.y + Math.sin(hitAngle) * 35,
+              vx: Math.cos(hitAngle) * 4,
+              vy: Math.sin(hitAngle) * 4,
+              life: 0.18,
+              color: '#f6c85f',
+              radius: 5
+            });
+          }
+
+          // 몬스터 피격 체크
+          this.hitMonstersInArc(angle, 60, this.player.swordDamage);
+        } else {
+          // 원거리 활 사격
+          this.player.attackCooldown = 0.35;
+          audio.playBowShot();
+
+          this.projectiles.push({
+            x: this.player.x,
+            y: this.player.y,
+            vx: Math.cos(angle) * 8.5,
+            vy: Math.sin(angle) * 8.5,
+            damage: this.player.bowDamage,
+            fromPlayer: true,
+            life: 1.6
+          });
+        }
+      }
+
+      hitMonstersInArc(centerAngle, range, damage) {
+        const targets = [...this.monsters];
+        if (this.boss) targets.push(this.boss);
+
+        for (const m of targets) {
+          const dx = m.x - this.player.x;
+          const dy = m.y - this.player.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist <= range + m.radius) {
+            const mAngle = Math.atan2(dy, dx);
+            let diff = Math.abs(centerAngle - mAngle);
+            if (diff > Math.PI) diff = 2 * Math.PI - diff;
+
+            if (diff <= 0.8) {
+              m.hp -= damage;
+              audio.playHit();
+              this.spawnHitParticles(m.x, m.y, '#e74c3c');
+
+              // 넉백
+              m.x += Math.cos(centerAngle) * 12;
+              m.y += Math.sin(centerAngle) * 12;
+            }
+          }
+        }
+      }
+
+      interact() {
+        // 상자 또는 포탈 열기
+        for (const c of this.chests) {
+          if (!c.opened && Math.hypot(c.x - this.player.x, c.y - this.player.y) < 50) {
+            c.opened = true;
+            audio.playLoot();
+            showToast('🎁 보물상자를 열었습니다!');
+            this.spawnLoot(c.x, c.y, 2);
+          }
+        }
+
+        for (const p of this.portals) {
+          if (Math.hypot(p.x - this.player.x, p.y - this.player.y) < 40) {
+            if (p.isNextFloor) {
+              this.floor++;
+              showToast(`다음 층 (${this.floor}층)으로 진입합니다!`);
+              this.generateRoom();
+            } else {
+              // 안전 탈출 포탈
+              this.stop(false);
+            }
+          }
+        }
+      }
+
+      spawnLoot(x, y, count = 1) {
+        const dropKeyMap = {
+          1: ['slime_jelly', 'vine_stem', 'forest_essence', 'ancient_leaf'],
+          2: ['weathered_bone', 'mummy_wrap', 'scorpion_stinger', 'ancient_papyrus'],
+          3: ['magma_shard', 'obsidian_ore', 'fire_core', 'lava_chitin'],
+          4: ['starlight_dust', 'void_crystal', 'celestial_feather', 'ancient_rune']
+        };
+        const pool = dropKeyMap[this.currentDungeonId] || dropKeyMap[1];
+
+        for (let i = 0; i < count; i++) {
+          const itemId = pool[Math.floor(Math.random() * pool.length)];
+          this.drops.push({
+            x: x + (Math.random() - 0.5) * 30,
+            y: y + (Math.random() - 0.5) * 30,
+            itemId: itemId,
+            life: 30.0
+          });
+        }
+      }
+
+      spawnHitParticles(x, y, color) {
+        for (let i = 0; i < 6; i++) {
+          this.particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            life: 0.25,
+            color: color,
+            radius: 4
+          });
+        }
+      }
+
+      update(dt) {
+        if (!this.isActive) return;
+
+        // 플레이어 이동
+        let moveX = 0;
+        let moveY = 0;
+        if (this.keys['KeyW'] || this.keys['ArrowUp']) moveY -= 1;
+        if (this.keys['KeyS'] || this.keys['ArrowDown']) moveY += 1;
+        if (this.keys['KeyA'] || this.keys['ArrowLeft']) moveX -= 1;
+        if (this.keys['KeyD'] || this.keys['ArrowRight']) moveX += 1;
+
+        if (moveX !== 0 && moveY !== 0) {
+          moveX *= 0.7071;
+          moveY *= 0.7071;
+        }
+
+        const currentSpeed = this.player.isDashing ? this.player.speed * 2.2 : this.player.speed;
+        this.player.x += moveX * currentSpeed;
+        this.player.y += moveY * currentSpeed;
+
+        // 벽 충돌 방지
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        this.player.x = Math.max(30, Math.min(w - 30, this.player.x));
+        this.player.y = Math.max(30, Math.min(h - 30, this.player.y));
+
+        // 쿨다운 감쇄
+        if (this.player.dashCooldown > 0) this.player.dashCooldown -= dt;
+        if (this.player.attackCooldown > 0) this.player.attackCooldown -= dt;
+        if (this.player.invincibleTime > 0) this.player.invincibleTime -= dt;
+
+        // 마우스 누르고 있을 시 자동 사격/공격
+        if (this.mouse.isDown && this.player.attackCooldown <= 0) {
+          this.tryAttack();
+        }
+
+        // HUD 프로그레스 바
+        const hpPercent = Math.max(0, (this.player.hp / this.player.maxHp) * 100);
+        document.getElementById('dungeonHpFill').style.width = `${hpPercent}%`;
+        document.getElementById('dungeonHpText').innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`;
+
+        const dashPercent = Math.max(0, 100 - (this.player.dashCooldown / this.player.dashMaxCooldown) * 100);
+        document.getElementById('dungeonDashFill').style.width = `${dashPercent}%`;
+
+        // 투사체 업데이트
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+          const p = this.projectiles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= dt;
+
+          // 벽 충돌 또는 수명 다함
+          if (p.life <= 0 || p.x < 20 || p.x > w - 20 || p.y < 20 || p.y > h - 20) {
+            this.projectiles.splice(i, 1);
+            continue;
+          }
+
+          if (p.fromPlayer) {
+            // 플레이어 투사체 -> 몬스터 피격
+            const targets = [...this.monsters];
+            if (this.boss) targets.push(this.boss);
+
+            for (const m of targets) {
+              if (Math.hypot(p.x - m.x, p.y - m.y) < m.radius + 6) {
+                m.hp -= p.damage;
+                audio.playHit();
+                this.spawnHitParticles(m.x, m.y, '#f6c85f');
+                this.projectiles.splice(i, 1);
+                break;
+              }
+            }
+          } else {
+            // 몬스터 투사체 -> 플레이어 피격
+            if (this.player.invincibleTime <= 0 && Math.hypot(p.x - this.player.x, p.y - this.player.y) < this.player.radius + 6) {
+              this.takeDamage(p.damage);
+              this.projectiles.splice(i, 1);
+            }
+          }
+        }
+
+        // 몬스터 AI 업데이트
+        for (let i = this.monsters.length - 1; i >= 0; i--) {
+          const m = this.monsters[i];
+
+          if (m.hp <= 0) {
+            // 처치
+            audio.playLoot();
+            this.spawnLoot(m.x, m.y, 1);
+            this.monsters.splice(i, 1);
+            continue;
+          }
+
+          // 플레이어 추적
+          const dx = this.player.x - m.x;
+          const dy = this.player.y - m.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist > 15) {
+            m.x += (dx / dist) * m.speed;
+            m.y += (dy / dist) * m.speed;
+          }
+
+          // 접촉 대미지
+          if (dist < m.radius + this.player.radius && this.player.invincibleTime <= 0) {
+            this.takeDamage(12);
+          }
+        }
+
+        // 보스 업데이트
+        if (this.boss) {
+          if (this.boss.hp <= 0) {
+            // 보스 클리어!
+            audio.playLoot();
+            showToast(`👑 ${this.boss.name}를 토벌했습니다!`);
+            this.spawnLoot(this.boss.x, this.boss.y, 4);
+            // 특수 전설 유물 확정 드랍
+            this.drops.push({ x: this.boss.x, y: this.boss.y, itemId: this.boss.drop, life: 60 });
+            
+            // 다음 던전 해금
+            if (!state.unlockedDungeons.includes(this.currentDungeonId + 1) && this.currentDungeonId < 4) {
+              state.unlockedDungeons.push(this.currentDungeonId + 1);
+              showToast(`새로운 차원문이 해금되었습니다!`);
+            }
+            this.boss = null;
+          } else {
+            const dx = this.player.x - this.boss.x;
+            const dy = this.player.y - this.boss.y;
+            const dist = Math.hypot(dx, dy);
+
+            // 이동
+            this.boss.x += (dx / dist) * this.boss.speed;
+            this.boss.y += (dy / dist) * this.boss.speed;
+
+            // 보스 투사체 패턴
+            this.boss.attackTimer -= dt;
+            if (this.boss.attackTimer <= 0) {
+              this.boss.attackTimer = 2.0;
+              // 8방향 탄막 발사
+              for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+                this.projectiles.push({
+                  x: this.boss.x,
+                  y: this.boss.y,
+                  vx: Math.cos(a) * 3.8,
+                  vy: Math.sin(a) * 3.8,
+                  damage: 18,
+                  fromPlayer: false,
+                  life: 2.2
+                });
+              }
+            }
+          }
+        }
+
+        // 방 클리어 체크
+        if (!this.roomCleared && this.monsters.length === 0 && !this.boss) {
+          this.roomCleared = true;
+          audio.playKaChing();
+          showToast('🚪 모든 몬스터를 토벌했습니다! 포탈이 열렸습니다.');
+
+          if (this.floor < this.maxFloors) {
+            // 다음 층 포탈
+            this.portals.push({ x: w / 2, y: 80, isNextFloor: true });
+          } else {
+            // 보스전 후 안전 귀환 포탈
+            this.portals.push({ x: w / 2, y: 80, isNextFloor: false });
+          }
+        }
+
+        // 전리품 아이템 픽업 (배낭 16칸 제한 체크)
+        for (let i = this.drops.length - 1; i >= 0; i--) {
+          const d = this.drops[i];
+          if (Math.hypot(d.x - this.player.x, d.y - this.player.y) < 32) {
+            if (addItemToInventory(d.itemId, 1)) {
+              audio.playLoot();
+              const item = ITEM_DATABASE[d.itemId];
+              showToast(`📦 [${item.name}] 획득!`);
+              this.drops.splice(i, 1);
+            } else {
+              showToast('⚠️ 배낭이 가득 찼습니다! (16칸 제한)');
+              break;
+            }
+          }
+        }
+
+        // 파티클
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= dt;
+          if (p.life <= 0) this.particles.splice(i, 1);
+        }
+      }
+
+      takeDamage(amount) {
+        this.player.hp -= amount;
+        this.player.invincibleTime = 0.5;
+        audio.playReject();
+
+        if (this.player.hp <= 0) {
+          this.player.hp = 0;
+          this.stop(true); // 사망
+        }
+      }
+
+      render() {
+        const ctx = this.ctx;
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+
+        // 던전 바닥 테마별 배경색
+        const bgColors = { 1: '#1b2d1d', 2: '#3d311d', 3: '#3b1616', 4: '#1a1636' };
+        ctx.fillStyle = bgColors[this.currentDungeonId] || '#111';
+        ctx.fillRect(0, 0, w, h);
+
+        // 바닥 격자 텍스처
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 40) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+        }
+        for (let y = 0; y < h; y += 40) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+        }
+
+        // 던전 외곽 벽
+        ctx.fillStyle = '#0b0c10';
+        ctx.fillRect(0, 0, w, 20);
+        ctx.fillRect(0, h - 20, w, 20);
+        ctx.fillRect(0, 0, 20, h);
+        ctx.fillRect(w - 20, 0, 20, h);
+
+        // 보물상자
+        for (const c of this.chests) {
+          ctx.font = '28px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(c.opened ? '📭' : '🎁', c.x, c.y);
+          if (!c.opened && Math.hypot(c.x - this.player.x, c.y - this.player.y) < 60) {
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#f6c85f';
+            ctx.fillText('[E] 열기', c.x, c.y - 20);
+          }
+        }
+
+        // 포탈
+        for (const p of this.portals) {
+          ctx.font = '36px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(p.isNextFloor ? '🌀' : '🚪', p.x, p.y);
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillStyle = p.isNextFloor ? '#00d2d3' : '#f6c85f';
+          ctx.fillText(p.isNextFloor ? '[E] 다음 층' : '[E] 안전 귀환', p.x, p.y - 24);
+        }
+
+        // 전리품 드랍 아이템
+        for (const d of this.drops) {
+          const item = ITEM_DATABASE[d.itemId];
+          if (item) {
+            ctx.font = '20px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(item.icon, d.x, d.y);
+          }
+        }
+
+        // 몬스터
+        for (const m of this.monsters) {
+          ctx.font = '26px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(m.icon, m.x, m.y);
+
+          // 체력바
+          const barW = 32;
+          const barH = 5;
+          ctx.fillStyle = '#333';
+          ctx.fillRect(m.x - barW / 2, m.y - 22, barW, barH);
+          ctx.fillStyle = '#e74c3c';
+          ctx.fillRect(m.x - barW / 2, m.y - 22, (m.hp / m.maxHp) * barW, barH);
+        }
+
+        // 보스
+        if (this.boss) {
+          ctx.font = '48px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(this.boss.icon, this.boss.x, this.boss.y);
+
+          // 거대 보스 체력바 (상단)
+          ctx.fillStyle = 'rgba(0,0,0,0.6)';
+          ctx.fillRect(w / 2 - 150, 24, 300, 16);
+          ctx.fillStyle = '#d63031';
+          ctx.fillRect(w / 2 - 150, 24, (this.boss.hp / this.boss.maxHp) * 300, 16);
+          ctx.strokeStyle = '#f6c85f';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(w / 2 - 150, 24, 300, 16);
+
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillStyle = '#fff';
+          ctx.fillText(this.boss.name, w / 2, 36);
+        }
+
+        // 플레이어 캐릭터
+        ctx.save();
+        if (this.player.invincibleTime > 0 && Math.floor(Date.now() / 80) % 2 === 0) {
+          ctx.globalAlpha = 0.4;
+        }
+
+        ctx.font = '28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🧙‍♂️', this.player.x, this.player.y);
+
+        // 플레이어 무기 조준 방향 표시기
+        const dx = this.mouse.x - this.player.x;
+        const dy = this.mouse.y - this.player.y;
+        const angle = Math.atan2(dy, dx);
+        ctx.strokeStyle = (this.player.activeWeapon === 'sword' ? '#f6c85f' : '#00d2d3');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.player.x, this.player.y);
+        ctx.lineTo(this.player.x + Math.cos(angle) * 26, this.player.y + Math.sin(angle) * 26);
+        ctx.stroke();
+
+        ctx.restore();
+
+        // 투사체
+        for (const p of this.projectiles) {
+          ctx.fillStyle = p.fromPlayer ? '#00d2d3' : '#ff7675';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.fromPlayer ? 4 : 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 파티클
+        for (const pt of this.particles) {
+          ctx.fillStyle = pt.color;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      loop() {
+        const now = performance.now();
+        const dt = (now - this.lastTime) / 1000;
+        this.lastTime = now;
+
+        this.update(dt);
+        this.render();
+
+        if (this.isActive) {
+          this.animFrame = requestAnimationFrame(() => this.loop());
+        }
+      }
+    }
+
+    /* ==========================================================================
+       7. UI INTERACTION, INVENTORY & TOWN LOGIC
+       ========================================================================== */
+    let shopSim = null;
+    let dungeonEngine = null;
+    let selectedInvIndex = -1;
+    let selectedShowcaseIndex = -1;
+
+    function addItemToInventory(itemId, count = 1) {
+      // 1. 기존 슬롯에 합치기
+      for (const slot of state.inventory) {
+        if (slot.itemId === itemId) {
+          slot.count += count;
+          renderInventoryUI();
+          saveGame(false);
+          return true;
+        }
+      }
+      // 2. 새 슬롯 등록 (최대 16칸)
+      if (state.inventory.length < 16) {
+        state.inventory.push({ itemId: itemId, count: count });
+        renderInventoryUI();
+        saveGame(false);
+        return true;
+      }
+      return false; // 인벤토리 꽉 참
+    }
+
+    function removeItemFromInventory(itemId, count = 1) {
+      for (let i = 0; i < state.inventory.length; i++) {
+        if (state.inventory[i].itemId === itemId) {
+          state.inventory[i].count -= count;
+          if (state.inventory[i].count <= 0) {
+            state.inventory.splice(i, 1);
+          }
+          renderInventoryUI();
+          saveGame(false);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function updateHeaderHUD() {
+      document.getElementById('hudDay').innerText = `📅 Day ${state.day} (${state.phase === 'shop' ? '낮 영업' : '밤 탐험'})`;
+      document.getElementById('hudGold').innerText = `🪙 ${state.gold.toLocaleString()} G`;
+      
+      const nextDebt = state.debtDeadlines.find(d => !d.paid);
+      if (nextDebt) {
+        const remainDays = Math.max(0, nextDebt.day - state.day);
+        document.getElementById('hudDebt').innerText = `⚠️ 빚: ${nextDebt.amount.toLocaleString()} G (D-${remainDays})`;
+      } else {
+        document.getElementById('hudDebt').innerText = `🎉 모든 빚 청산 완료!`;
+        document.getElementById('hudDebt').style.borderColor = 'var(--emerald)';
+        document.getElementById('hudDebt').style.color = 'var(--emerald)';
+      }
+    }
+
+    function renderShowcaseUI() {
+      const container = document.getElementById('showcaseContainer');
+      container.innerHTML = '';
+      let usedCount = 0;
+
+      for (let i = 0; i < 8; i++) {
+        const isUnlocked = i < state.showcaseCapacity;
+        const slotData = state.showcase[i];
+        const div = document.createElement('div');
+        div.className = 'showcase-slot';
+
+        if (!isUnlocked) {
+          div.classList.add('locked');
+          div.innerHTML = `<span style="font-size:22px;">🔒</span><span style="font-size:10px; color:var(--text-muted);">미해금 매대</span>`;
+        } else {
+          if (slotData && slotData.itemId) {
+            usedCount++;
+            div.classList.add('has-item');
+            const item = ITEM_DATABASE[slotData.itemId];
+            div.innerHTML = `
+              <div class="slot-item-icon">${item.icon}</div>
+              <div class="slot-item-name tier-${item.tier}">${item.name}</div>
+              <div class="slot-item-price">${slotData.price.toLocaleString()} G</div>
+            `;
+            div.onclick = () => {
+              if (shopSim.isOpen) {
+                showToast('영업 중에는 진열대를 회수할 수 없습니다!');
+                return;
+              }
+              // 매대 아이템 회수
+              addItemToInventory(slotData.itemId, 1);
+              slotData.itemId = null;
+              slotData.price = 0;
+              renderShowcaseUI();
+              saveGame(false);
+            };
+          } else {
+            div.innerHTML = `<span style="font-size:20px; color:#4e5779;">➕</span><span style="font-size:11px; color:var(--text-muted);">상품 올리기</span>`;
+            div.onclick = () => {
+              if (shopSim.isOpen) {
+                showToast('영업 중에는 새로 진열할 수 없습니다!');
+                return;
+              }
+              selectedShowcaseIndex = i;
+              if (selectedInvIndex !== -1 && state.inventory[selectedInvIndex]) {
+                openPriceModal(state.inventory[selectedInvIndex].itemId, i);
+              } else {
+                showToast('먼저 하단 배낭에서 진열할 아이템을 클릭해 주세요!');
+              }
+            };
+          }
+        }
+        container.appendChild(div);
+      }
+
+      document.getElementById('showcaseCountText').innerText = `${usedCount} / ${state.showcaseCapacity} 사용중`;
+    }
+
+    function renderInventoryUI() {
+      const grid = document.getElementById('inventoryGrid');
+      grid.innerHTML = '';
+
+      for (let i = 0; i < 16; i++) {
+        const div = document.createElement('div');
+        div.className = 'inv-slot';
+        const itemSlot = state.inventory[i];
+
+        if (itemSlot) {
+          const item = ITEM_DATABASE[itemSlot.itemId];
+          if (item) {
+            div.classList.add(`tier-${item.tier}`);
+            div.innerHTML = `
+              <span style="font-size:26px;">${item.icon}</span>
+              <span class="qty-badge">${itemSlot.count}</span>
+            `;
+            div.title = `${item.name} (원가 ${item.basePrice}G)\n${item.desc}`;
+            div.onclick = () => {
+              selectedInvIndex = i;
+              document.querySelectorAll('.inv-slot').forEach(s => s.classList.remove('selected'));
+              div.classList.add('selected');
+
+              // 빈 진열대가 있으면 즉시 등록 팝업
+              const emptySlot = state.showcase.findIndex((s, idx) => idx < state.showcaseCapacity && !s.itemId);
+              if (emptySlot !== -1 && !shopSim.isOpen) {
+                openPriceModal(itemSlot.itemId, emptySlot);
+              }
+            };
+          }
+        } else {
+          div.innerHTML = `<span style="font-size:14px; opacity:0.15;">빈 슬롯</span>`;
+        }
+        grid.appendChild(div);
+      }
+
+      document.getElementById('invCapacityText').innerText = `${state.inventory.length} / 16`;
+    }
+
+    function openPriceModal(itemId, showcaseSlotIdx) {
+      const item = ITEM_DATABASE[itemId];
+      if (!item) return;
+
+      selectedShowcaseIndex = showcaseSlotIdx;
+      document.getElementById('modalItemIcon').innerText = item.icon;
+      document.getElementById('modalItemName').innerText = item.name;
+      document.getElementById('modalItemTier').innerText = `희귀도: ${item.tier.toUpperCase()}`;
+      document.getElementById('modalItemBasePrice').innerText = `기준 원가: ${item.basePrice} G`;
+
+      const input = document.getElementById('inputCustomPrice');
+      input.value = Math.floor(item.basePrice * 1.15); // 기본 추천 115%
+
+      updatePriceRatioDisplay(item.basePrice, parseInt(input.value));
+      document.getElementById('modalPriceSet').classList.add('show');
+    }
+
+    function updatePriceRatioDisplay(basePrice, setPrice) {
+      const ratio = Math.round((setPrice / basePrice) * 100);
+      const span = document.getElementById('priceRatioDisplay');
+      span.innerText = `${ratio}%`;
+      if (ratio <= 85) {
+        span.innerText += ' (너무 쌈)';
+        span.style.color = 'var(--emerald)';
+      } else if (ratio <= 120) {
+        span.innerText += ' (적정가 - 팁 보너스!)';
+        span.style.color = 'var(--gold-primary)';
+      } else if (ratio <= 140) {
+        span.innerText += ' (비쌈 - 구매율 저하)';
+        span.style.color = '#fdcb6e';
+      } else {
+        span.innerText += ' (바가지 - 손님 분노!)';
+        span.style.color = '#d63031';
+      }
+    }
+
+    function renderTownUI() {
+      // 1. 대장간 강화 항목
+      const forgeContainer = document.getElementById('blacksmithList');
+      forgeContainer.innerHTML = '';
+
+      const eqList = [
+        { key: 'swordTier', name: '검 강화', icon: '🗡️', stat: '공격력 +20', tier: state.equipment.swordTier, max: 4, cost: state.equipment.swordTier * 250 },
+        { key: 'bowTier', name: '활 강화', icon: '🏹', stat: '원거리 사격력 +16', tier: state.equipment.bowTier, max: 4, cost: state.equipment.bowTier * 220 },
+        { key: 'armorTier', name: '갑옷 제련', icon: '🛡️', stat: '최대 체력 +40', tier: state.equipment.armorTier, max: 4, cost: state.equipment.armorTier * 300 },
+        { key: 'bootsTier', name: '장화 세공', icon: '👢', stat: '이동속도 +20%', tier: state.equipment.bootsTier, max: 3, cost: state.equipment.bootsTier * 200 }
+      ];
+
+      for (const eq of eqList) {
+        const div = document.createElement('div');
+        div.className = 'upgrade-item';
+        const isMax = eq.tier >= eq.max;
+        div.innerHTML = `
+          <div>
+            <div class="item-meta-title">${eq.icon} ${eq.name} (Lv.${eq.tier})</div>
+            <div class="item-meta-desc">${eq.stat}</div>
+          </div>
+          <button class="btn-upgrade" ${isMax || state.gold < eq.cost ? 'disabled' : ''}>
+            ${isMax ? '최대 레벨' : `제련하기 (${eq.cost} G)`}
+          </button>
+        `;
+        const btn = div.querySelector('button');
+        if (!isMax) {
+          btn.onclick = () => {
+            if (state.gold >= eq.cost) {
+              state.gold -= eq.cost;
+              state.equipment[eq.key]++;
+              audio.playKaChing();
+              showToast(`🎉 [${eq.name}] 업그레이드 완료! (Lv.${state.equipment[eq.key]})`);
+              updateHeaderHUD();
+              renderTownUI();
+              saveGame();
+            }
+          };
+        }
+        forgeContainer.appendChild(div);
+      }
+
+      // 2. 크래프팅 레시피 목록
+      const craftContainer = document.getElementById('craftingList');
+      craftContainer.innerHTML = '';
+
+      for (const recipe of CRAFTING_RECIPES) {
+        const div = document.createElement('div');
+        div.className = 'recipe-item';
+
+        // 재료 충족 여부 체크
+        let canCraft = true;
+        let matStrings = [];
+        for (const mat of recipe.materials) {
+          const invItem = state.inventory.find(i => i.itemId === mat.id);
+          const currentCount = invItem ? invItem.count : 0;
+          if (currentCount < mat.count) canCraft = false;
+          const matItem = ITEM_DATABASE[mat.id];
+          matStrings.push(`${matItem.name} ${currentCount}/${mat.count}`);
+        }
+
+        div.innerHTML = `
+          <div>
+            <div class="item-meta-title">${recipe.icon} ${recipe.name}</div>
+            <div class="item-meta-desc">${recipe.desc}</div>
+            <div style="font-size:11px; color:${canCraft ? 'var(--emerald)' : 'var(--ruby)'}; margin-top:4px;">
+              재료: ${matStrings.join(', ')}
+            </div>
+          </div>
+          <button class="btn-upgrade" ${!canCraft ? 'disabled' : ''}>
+            제작하기
+          </button>
+        `;
+
+        const btn = div.querySelector('button');
+        if (canCraft) {
+          btn.onclick = () => {
+            // 재료 차감
+            for (const mat of recipe.materials) {
+              removeItemFromInventory(mat.id, mat.count);
+            }
+            addItemToInventory(recipe.outputItem, 1);
+            audio.playKaChing();
+            showToast(`✨ [${recipe.name}]을 성공적으로 제작했습니다!`);
+            renderTownUI();
+            renderInventoryUI();
+            saveGame();
+          };
+        }
+
+        craftContainer.appendChild(div);
+      }
+
+      // 3. 상점 인프라 업그레이드
+      const shopUpContainer = document.getElementById('shopUpgradeList');
+      shopUpContainer.innerHTML = '';
+
+      const upgrades = [
+        {
+          id: 'showcase',
+          name: '진열대 확장 (+2칸)',
+          icon: '🪑',
+          desc: '동시에 더 많은 상품을 올려놓고 판매할 수 있습니다.',
+          cost: state.showcaseCapacity * 200,
+          current: `${state.showcaseCapacity}/8칸`,
+          isMax: state.showcaseCapacity >= 8,
+          apply: () => { state.showcaseCapacity += 2; }
+        },
+        {
+          id: 'carpet',
+          name: '벨벳 레드 카펫',
+          icon: '🧶',
+          desc: '손님들의 이동속도와 체류시간이 20% 증가합니다.',
+          cost: 600,
+          current: state.shopUpgrades.carpet ? '보유중' : '미보유',
+          isMax: state.shopUpgrades.carpet === 1,
+          apply: () => { state.shopUpgrades.carpet = 1; }
+        },
+        {
+          id: 'security',
+          name: '방범 수호 골렘',
+          icon: '🤖',
+          desc: '물건을 훔치려는 도둑 손님을 100% 사전에 차단합니다.',
+          cost: 1000,
+          current: state.shopUpgrades.security ? '배치됨' : '미보유',
+          isMax: state.shopUpgrades.security === 1,
+          apply: () => { state.shopUpgrades.security = 1; }
+        },
+        {
+          id: 'chandelier',
+          name: '수정 샹들리에',
+          icon: '✨',
+          desc: '부유한 귀족과 희귀 유물 수집가 손님 출현율이 50% 증가합니다.',
+          cost: 1500,
+          current: state.shopUpgrades.chandelier ? '설치됨' : '미보유',
+          isMax: state.shopUpgrades.chandelier === 1,
+          apply: () => { state.shopUpgrades.chandelier = 1; }
+        }
+      ];
+
+      for (const u of upgrades) {
+        const div = document.createElement('div');
+        div.className = 'panel-box';
+        div.innerHTML = `
+          <div class="panel-box-title">
+            <span>${u.icon} ${u.name}</span>
+            <span style="font-size:11px; color:var(--text-muted);">${u.current}</span>
+          </div>
+          <p style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">${u.desc}</p>
+          <button class="btn-upgrade" style="width:100%;" ${u.isMax || state.gold < u.cost ? 'disabled' : ''}>
+            ${u.isMax ? '완료' : `투자하기 (${u.cost} G)`}
+          </button>
+        `;
+        const btn = div.querySelector('button');
+        if (!u.isMax) {
+          btn.onclick = () => {
+            if (state.gold >= u.cost) {
+              state.gold -= u.cost;
+              u.apply();
+              audio.playKaChing();
+              showToast(`🏪 [${u.name}] 시설 투자가 완료되었습니다!`);
+              updateHeaderHUD();
+              renderTownUI();
+              renderShowcaseUI();
+              saveGame();
+            }
+          };
+        }
+        shopUpContainer.appendChild(div);
+      }
+    }
+
+    function renderDungeonSelectionUI() {
+      const grid = document.getElementById('dungeonGrid');
+      grid.innerHTML = '';
+
+      const dungeonCards = [
+        { id: 1, name: '숲 미궁 (Verdant Labyrinth)', icon: '🌲', desc: '슬라임과 덩굴 몬스터가 서식하는 신비로운 미궁.', boss: '보스: 숲의 거신' },
+        { id: 2, name: '사막 유적 (Sunken Ruins)', icon: '🏜️', desc: '고대 파라오의 저주와 모래 전갈이 도사리는 유적지.', boss: '보스: 모래폭풍 파라오' },
+        { id: 3, name: '용암 동굴 (Molten Cavern)', icon: '🌋', desc: '뜨거운 마그마와 화염 정령이 날뛰는 위험천만한 심층.', boss: '보스: 용암 드래곤' },
+        { id: 4, name: '고대 성소 (Ancient Sanctuary)', icon: '🏛️', desc: '차원의 비밀을 품은 궁극의 전설적 공간.', boss: '보스: 차원 지배자' }
+      ];
+
+      for (const d of dungeonCards) {
+        const isUnlocked = state.unlockedDungeons.includes(d.id);
+        const div = document.createElement('div');
+        div.className = `dungeon-card ${isUnlocked ? '' : 'locked'}`;
+        div.innerHTML = `
+          <div class="theme-icon">${d.icon}</div>
+          <div class="dungeon-title">${d.name}</div>
+          <div class="dungeon-desc">${d.desc}</div>
+          <div class="dungeon-boss-badge">${d.boss}</div>
+          <button class="btn-main" style="margin-top:8px; padding:8px;" ${isUnlocked ? '' : 'disabled'}>
+            ${isUnlocked ? '던전 입장 ⚔️' : '🔒 이전 보스 격파 시 해금'}
+          </button>
+        `;
+
+        if (isUnlocked) {
+          div.querySelector('button').onclick = () => {
+            state.phase = 'dungeon';
+            dungeonEngine.start(d.id);
+          };
+        }
+        grid.appendChild(div);
+      }
+    }
+
+    function renderDebtUI() {
+      const list = document.getElementById('debtScheduleList');
+      list.innerHTML = '';
+
+      const nextDebt = state.debtDeadlines.find(d => !d.paid);
+      document.getElementById('debtCurrentTarget').innerText = nextDebt ? `${nextDebt.amount.toLocaleString()} G` : '청산 완료!';
+
+      state.debtDeadlines.forEach((debt, idx) => {
+        const isCurrent = nextDebt && nextDebt.day === debt.day;
+        const div = document.createElement('div');
+        div.className = `schedule-step ${debt.paid ? 'completed' : (isCurrent ? 'current' : '')}`;
+        div.innerHTML = `
+          <div>
+            <strong>${idx + 1}차 상환 기한: Day ${debt.day}</strong>
+            <span style="font-size:11px; margin-left:8px; color:var(--text-muted);">
+              ${debt.paid ? '✅ 상환 완료' : (isCurrent ? '⚠️ 현재 진행중' : '대기중')}
+            </span>
+          </div>
+          <div><strong>${debt.amount.toLocaleString()} G</strong></div>
+        `;
+        list.appendChild(div);
+      });
+
+      const btnPay = document.getElementById('btnPayDebt');
+      if (!nextDebt) {
+        btnPay.innerText = '🎉 모든 빚 청산 완료!';
+        btnPay.disabled = true;
+      } else {
+        btnPay.innerText = `💵 ${nextDebt.amount.toLocaleString()} G 납부하기`;
+        btnPay.disabled = state.gold < nextDebt.amount;
+        btnPay.onclick = () => {
+          if (state.gold >= nextDebt.amount) {
+            state.gold -= nextDebt.amount;
+            nextDebt.paid = true;
+            audio.playKaChing();
+            showToast(`🎉 Day ${nextDebt.day}차 대출금을 완납했습니다!`);
+            
+            // 모든 빚 청산 여부
+            if (state.debtDeadlines.every(d => d.paid)) {
+              alert('🏆 축하합니다! 30일 이내에 모든 부채를 청산하고 차원문 만물상의 진정한 주인이 되었습니다!\n이제 엔들리스 자유 상인 모드로 영구히 플레이할 수 있습니다!');
+            }
+
+            updateHeaderHUD();
+            renderDebtUI();
+            saveGame();
+          }
+        };
+      }
+    }
+
+    function showSettlementModal(stats) {
+      document.getElementById('settlementDayText').innerText = `Day ${state.day} 낮 영업이 성공적으로 마무리되었습니다.`;
+      document.getElementById('setCustCount').innerText = `${stats.customers} 명`;
+      document.getElementById('setSalesCount').innerText = `${stats.sales} 건`;
+      document.getElementById('setTipAmount').innerText = `+${stats.tips.toLocaleString()} G`;
+      document.getElementById('setMaxCombo').innerText = `x${stats.maxCombo}`;
+      document.getElementById('setTotalRevenue').innerText = `+${stats.revenue.toLocaleString()} G`;
+      document.getElementById('modalSettlement').classList.add('show');
+    }
+
+    function switchTab(targetPanelId) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-target') === targetPanelId);
+      });
+      document.querySelectorAll('.view-panel').forEach(p => {
+        p.classList.toggle('active', p.id === targetPanelId);
+      });
+
+      if (targetPanelId === 'panelShop') {
+        renderShowcaseUI();
+        renderInventoryUI();
+      } else if (targetPanelId === 'panelTown') {
+        renderTownUI();
+      } else if (targetPanelId === 'panelDungeon') {
+        renderDungeonSelectionUI();
+      } else if (targetPanelId === 'panelDebt') {
+        renderDebtUI();
+      }
+    }
+
+    /* ==========================================================================
+       8. INITIALIZATION & EVENT LISTENERS
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadGame();
+
+      shopSim = new ShopSimulation('shopCanvas');
+      dungeonEngine = new DungeonEngine('dungeonCanvas');
+
+      updateHeaderHUD();
+      renderShowcaseUI();
+      renderInventoryUI();
+      renderTownUI();
+      renderDungeonSelectionUI();
+      renderDebtUI();
+
+      // 탭 전환
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (dungeonEngine.isActive) {
+            showToast('던전 탐험 중에는 다른 탭으로 이동할 수 없습니다!');
+            return;
+          }
+          if (shopSim.isOpen && btn.getAttribute('data-target') !== 'panelShop') {
+            showToast('영업 중에는 가게를 비울 수 없습니다!');
+            return;
+          }
+          switchTab(btn.getAttribute('data-target'));
+        });
+      });
+
+      // 상점 컨트롤 버튼
+      document.getElementById('btnStartShop').addEventListener('click', () => {
+        shopSim.start();
+      });
+
+      document.getElementById('btnCloseShop').addEventListener('click', () => {
+        shopSim.stop();
+      });
+
+      // 결산 모달 닫기 -> 던전 패널 이동
+      document.getElementById('btnCloseSettlementModal').addEventListener('click', () => {
+        document.getElementById('modalSettlement').classList.remove('show');
+        state.phase = 'dungeon';
+        updateHeaderHUD();
+        switchTab('panelDungeon');
+      });
+
+      // 던전 수동 탈출
+      document.getElementById('btnEscapeDungeon').addEventListener('click', () => {
+        if (confirm('던전에서 안전하게 탈출하여 마을로 복귀하시겠습니까?')) {
+          dungeonEngine.stop(false);
+        }
+      });
+
+      // 사운드 토글
+      document.getElementById('btnAudioToggle').addEventListener('click', () => {
+        const isMuted = audio.toggleMute();
+        document.getElementById('btnAudioToggle').innerText = isMuted ? '🔇 음소거됨' : '🔊 사운드';
+        showToast(isMuted ? '사운드가 꺼졌습니다.' : '사운드가 켜졌습니다.');
+      });
+
+      // 저장 버튼
+      document.getElementById('btnSaveGame').addEventListener('click', () => {
+        saveGame(true);
+      });
+
+      // 도움말 모달
+      document.getElementById('btnHelp').addEventListener('click', () => {
+        document.getElementById('modalHelp').classList.add('show');
+      });
+      document.getElementById('btnCloseHelp').addEventListener('click', () => {
+        document.getElementById('modalHelp').classList.remove('show');
+      });
+      document.getElementById('btnResetSave').addEventListener('click', () => {
+        resetGame();
+      });
+
+      // 가격 책정 모달 이벤트
+      const inputCustomPrice = document.getElementById('inputCustomPrice');
+      inputCustomPrice.addEventListener('input', () => {
+        if (selectedInvIndex !== -1 && state.inventory[selectedInvIndex]) {
+          const item = ITEM_DATABASE[state.inventory[selectedInvIndex].itemId];
+          updatePriceRatioDisplay(item.basePrice, parseInt(inputCustomPrice.value) || 1);
+        }
+      });
+
+      document.getElementById('btnPriceMinus').addEventListener('click', () => {
+        if (selectedInvIndex !== -1 && state.inventory[selectedInvIndex]) {
+          const item = ITEM_DATABASE[state.inventory[selectedInvIndex].itemId];
+          inputCustomPrice.value = Math.max(1, Math.floor(parseInt(inputCustomPrice.value) * 0.9));
+          updatePriceRatioDisplay(item.basePrice, parseInt(inputCustomPrice.value));
+        }
+      });
+
+      document.getElementById('btnPriceBase').addEventListener('click', () => {
+        if (selectedInvIndex !== -1 && state.inventory[selectedInvIndex]) {
+          const item = ITEM_DATABASE[state.inventory[selectedInvIndex].itemId];
+          inputCustomPrice.value = item.basePrice;
+          updatePriceRatioDisplay(item.basePrice, parseInt(inputCustomPrice.value));
+        }
+      });
+
+      document.getElementById('btnPricePlus').addEventListener('click', () => {
+        if (selectedInvIndex !== -1 && state.inventory[selectedInvIndex]) {
+          const item = ITEM_DATABASE[state.inventory[selectedInvIndex].itemId];
+          inputCustomPrice.value = Math.floor(parseInt(inputCustomPrice.value) * 1.15);
+          updatePriceRatioDisplay(item.basePrice, parseInt(inputCustomPrice.value));
+        }
+      });
+
+      document.getElementById('btnConfirmPutOnShowcase').addEventListener('click', () => {
+        if (selectedInvIndex === -1 || !state.inventory[selectedInvIndex]) return;
+        if (selectedShowcaseIndex === -1) return;
+
+        const price = parseInt(inputCustomPrice.value) || 1;
+        const invSlot = state.inventory[selectedInvIndex];
+
+        // 진열대에 올리기
+        state.showcase[selectedShowcaseIndex] = {
+          itemId: invSlot.itemId,
+          price: price
+        };
+
+        // 배낭에서 수량 1 차감
+        removeItemFromInventory(invSlot.itemId, 1);
+        selectedInvIndex = -1;
+
+        document.getElementById('modalPriceSet').classList.remove('show');
+        audio.playLoot();
+        renderShowcaseUI();
+        renderInventoryUI();
+        saveGame(false);
+      });
+
+      document.getElementById('btnCancelPutOnShowcase').addEventListener('click', () => {
+        document.getElementById('modalPriceSet').classList.remove('show');
+      });
+
+      // 초기 렌더링 루프 가동
+      shopSim.render();
+    });
+  </script>
+</body>
+</html>
