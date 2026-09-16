@@ -1,7 +1,8 @@
 # 🌙 Moonlight Merchant (문라이트 머천트)
 
 > **주야간 듀얼 루프 던전 상점 경영 RPG (Single-File HTML5 Canvas & Web Audio API)**  
-> 낮에는 상점에서 전리품을 팔아 최적 마진율을 탐색하고, 밤에는 고대 차원문 던전에서 희귀 유물을 파밍하여 30일 이내에 빚을 청산하는 듀얼 루프 RPG 타이쿤 게임입니다.
+> 낮에는 상점에서 전리품을 팔아 최적 마진율을 탐색하고, 밤에는 고대 차원문 던전에서 희귀 유물을 파밍하여 30일 이내에 빚을 청산하는 듀얼 루프 RPG 타이쿤 게임입니다.  
+> **🌐 한국어 / English 완전 다국어(i18n) 지원!**
 
 ---
 
@@ -13,6 +14,11 @@
 ---
 
 ## 🌟 핵심 시스템 특징
+
+### 0. 🌐 완벽한 다국어 지원 (i18n Multi-Language)
+- 상단 컨트롤 바의 **`🌐 한국어` / `🌐 English`** 버튼을 클릭하여 언제든지 즉시 언어를 전환할 수 있습니다.
+- UI 텍스트뿐만 아니라 **25종의 아이템, 크래프팅 레시피, 손님들의 반응 대사, 몬스터 및 보스 명칭, 튜토리얼 도움말**까지 모두 한국어와 영어로 완벽히 지원됩니다.
+- 선택된 언어는 `localStorage`에 자동 저장되어 새로고침 후에도 유지됩니다.
 
 ### 1. 낮: 상점 경영 시뮬레이션 (Day Shop Phase)
 - **쇼케이스(Showcase) 진열 & 자율 가격 책정**:
@@ -44,14 +50,14 @@
   3. 🌋 **용암 동굴 (Molten Cavern)**: 화염 임프, 불꽃 정령, 용암 게 → **보스: 용암 드래곤 (Lava Drake)**
   4. 🏛️ **고대 성소 (Ancient Sanctuary)**: 공허의 눈, 룬 수호병, 빛의 망령 → **보스: 차원 지배자 (Dimensional Overlord)**
 - **16칸 배낭 인벤토리 관리**:
-  - 20종 이상의 다양한 전리품과 유물(Common, Uncommon, Rare, Epic, Legendary 등급)
+  - 25종의 다양한 전리품과 유물(Common, Uncommon, Rare, Epic, Legendary 등급)
   - 던전 안전 탈출 포탈 vs 심층부 보스 도전! (사망 시 소지품 일부 유실)
 
 ### 3. 마을 인프라, 대장간 & 크래프팅 (Town & Crafting)
 - **대장간 (Blacksmith)**:
   - 검(공격력), 활(원거리 피해), 갑옷(최대 체력), 장화(이동속도) 단계별 제련 업그레이드
 - **크래프팅 공방 (Crafting Bench)**:
-  - 던전 전리품들을 조합하여 상점에서 큰돈을 벌 수 있는 고가 명품(비전 치유 물약, 숲의 수호궁, 태양신의 부적, 마그마 대검, 차원 군주의 왕관 등) 제작
+  - 던전 전리품들을 조합하여 상점에서 큰돈을 벌 수 있는 고가 명품(비전 치유 물약, 숲의 수호궁, 태양신의 부적, 마그마 룬 소드, 차원 군주의 왕관 등) 제작
 - **상점 인테리어 투자**:
   - 진열대 확장, 벨벳 카펫(이동속도/체류시간 증가), 방범 수호 골렘(도둑 방지), 수정 샹들리에(귀족/수집가 출현율 대폭 증가)
 
@@ -65,12 +71,13 @@
 
 ### 5. Web Audio API 신시사이저 & LocalStorage 자동 저장
 - 외부 오디오 파일 없이 순수 브라우저 코드로 합성되는 타격음, 활 발사음, 계산대 카칭(Ka-ching!) 벨소리, 전리품 획득음 내장
-- 골드, 인벤토리, 진열대, 장비, 날짜, 던전 진행도 등이 `localStorage`에 실시간 100% 자동 보존됩니다.
+- 골드, 인벤토리, 진열대, 장비, 날짜, 언어 설정 등이 `localStorage`에 실시간 100% 자동 보존됩니다.
 
 ---
 
 ## 🛠️ 기술 스택
 - **Language**: HTML5, CSS3, Modern Vanilla JavaScript (ES6+)
+- **i18n**: Built-in Bilingual Engine (Korean 🇰🇷 & English 🇺🇸)
 - **Graphics**: HTML5 2D Canvas API (High-performance 60FPS Game Loop)
 - **Audio**: Web Audio API (Procedural Sound Synthesizer)
 - **Storage**: Browser LocalStorage API
